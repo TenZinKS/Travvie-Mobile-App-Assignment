@@ -41,22 +41,10 @@ class _SplashScreenViewState extends State<SplashScreenView> {
                 height: 500,
               ),
 
-              // App Name
-              const Text(
-                'Travvie',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  letterSpacing: 2,
-                ),
-              ),
               const SizedBox(height: 30),
 
               // Loading Indicator
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
-              ),
+              const CircularProgressIndicator(),
             ],
           ),
         ),

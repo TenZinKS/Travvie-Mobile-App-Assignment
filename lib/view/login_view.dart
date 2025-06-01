@@ -37,7 +37,6 @@ class _LoginViewState extends State<LoginView> {
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF09A8C8),
                 ),
               ),
               const SizedBox(height: 10),
@@ -93,7 +92,7 @@ class _LoginViewState extends State<LoginView> {
                     String? result = await _authController.login(email, password);
 
                     if (result == null) { // Navigate to home or dashboard here
-                      Navigator.pushNamed(context, '/homepage');
+                      Navigator.pushReplacementNamed(context, '/homepage');
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Login Successful'))
                       );
