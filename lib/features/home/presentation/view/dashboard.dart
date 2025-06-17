@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:travvie/bottom_screen/explore_screen.dart';
-import 'package:travvie/bottom_screen/home_screen.dart';
-import 'package:travvie/bottom_screen/plan_screen.dart';
-import 'package:travvie/bottom_screen/profile_screen.dart';
-import 'package:travvie/bottom_screen/saved_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/explore_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/plan_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/profile_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/saved_screen.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key}); 
