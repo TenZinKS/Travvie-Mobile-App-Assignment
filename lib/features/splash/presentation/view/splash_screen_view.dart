@@ -1,43 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../view_model/splash_cubit.dart';
+import '../view_model/splash_state.dart';
 
-class SplashScreenView extends StatefulWidget {
+class SplashScreenView extends StatelessWidget {
   const SplashScreenView({super.key});
-
-  @override
-  State<SplashScreenView> createState() => _SplashScreenViewState();
-}
-
-class _SplashScreenViewState extends State<SplashScreenView> {
-  @override
-  void initState() {
-    super.initState();
-
-    // Delay for 2 seconds, then navigate to login
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pushReplacementNamed(context, '/login');
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App Logo
-            Image.asset(
-              'assets/logo/logo.png',
-              width: 500,
-              height: 500,
-            ),
-
-            const SizedBox(height: 30),
-
-            // Loading Indicator
-            const CircularProgressIndicator(),
-          ],
+      backgroundColor: Colors.white,
+      body: BlocListener<SplashCubit, SplashState>(
+        listener: (context, state) {
+          if (state is SplashLoggedIn) {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (state is SplashLoggedOut) {
+            Navigator.pushReplacementNamed(context, '/login');
+          }
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/logo/logo.png', height: 400),
+              const SizedBox(height: 30),
+              const CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );
