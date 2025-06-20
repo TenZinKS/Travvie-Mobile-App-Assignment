@@ -1,4 +1,5 @@
 import 'package:hive/hive.dart';
+import 'package:travvie/app/constant/hive_table_constants.dart';
 import '../../model/user_model.dart';
 
 abstract class AuthLocalDataSource {
@@ -9,13 +10,9 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  static const userBoxName = 'usersBox';
-  static const sessionBoxName = 'sessionBox';
-  static const currentKey = 'currentUserEmail';
-
   @override
   Future<void> registerUser(UserModel user) async {
-    final box = await Hive.openBox<UserModel>(userBoxName);
+    final box = await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
 
     if (box.containsKey(user.email.trim())) {
       throw Exception('User already exists');
@@ -26,12 +23,12 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<UserModel?> loginUser(String email, String password) async {
-    final box = await Hive.openBox<UserModel>(userBoxName);
+    final box = await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
     final user = box.get(email.trim());
 
     if (user != null && user.password == password.trim()) {
-      final sessionBox = await Hive.openBox(sessionBoxName);
-      await sessionBox.put(currentKey, user.email);
+      final sessionBox = await Hive.openBox(HiveTableConstants.sessionBox);
+      await sessionBox.put(HiveTableConstants.currentUserEmail, user.email);
       return user;
     }
 
@@ -40,14 +37,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> logoutUser() async {
-    final sessionBox = await Hive.openBox(sessionBoxName);
-    await sessionBox.delete(currentKey);
+    final sessionBox = await Hive.openBox(HiveTableConstants.sessionBox);
+    await sessionBox.delete(HiveTableConstants.currentUserEmail);
   }
 
   @override
   String? getCurrentUserEmail() {
-    final sessionBox = Hive.box(sessionBoxName);
-    final result = sessionBox.get(currentKey);
+    final sessionBox = Hive.box(HiveTableConstants.sessionBox);
+    final result = sessionBox.get(HiveTableConstants.currentUserEmail);
     return result is String ? result : null;
   }
 }

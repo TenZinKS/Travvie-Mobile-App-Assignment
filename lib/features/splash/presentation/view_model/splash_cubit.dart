@@ -8,7 +8,9 @@ class SplashCubit extends Cubit<SplashState> {
   SplashCubit(this.repository) : super(SplashInitial());
 
   void checkUserLogin() async {
+    // Optional: artificial delay for showing splash
     await Future.delayed(const Duration(seconds: 2));
+
     final email = repository.getCurrentUserEmail();
 
     print('[SplashCubit] currentUserEmail = $email');
