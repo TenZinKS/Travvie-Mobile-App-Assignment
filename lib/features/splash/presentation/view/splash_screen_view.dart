@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/features/auth/presentation/view/login_view.dart';
+import 'package:travvie/features/home/presentation/view/dashboard.dart';
 import '../view_model/splash_cubit.dart';
 import '../view_model/splash_state.dart';
 
@@ -13,9 +15,15 @@ class SplashScreenView extends StatelessWidget {
       body: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashLoggedIn) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const Dashboard()),
+            );
           } else if (state is SplashLoggedOut) {
-            Navigator.pushReplacementNamed(context, '/login');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginView()),
+            );
           }
         },
         child: Center(

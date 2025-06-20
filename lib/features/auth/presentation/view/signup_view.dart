@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/auth/presentation/view/login_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
-import 'package:travvie/app/service_locator/service_locator.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -49,7 +50,10 @@ class _SignupViewState extends State<SignupView> {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Signup Successful")),
                 );
-                Navigator.pop(context); // Back to login
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginView()),
+                );
               } else if (state is AuthFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -62,7 +66,7 @@ class _SignupViewState extends State<SignupView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/logo/logo.png', height: 120),
+                    Image.asset('assets/logo/logo.png', height: 150),
                     const SizedBox(height: 20),
                     const Text('Create an Account',
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF09A8C8))),
@@ -124,7 +128,12 @@ class _SignupViewState extends State<SignupView> {
                       children: [
                         const Text("Already have an account?"),
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (_) => const LoginView()),
+                            );
+                          },
                           child: const Text('Login',
                               style: TextStyle(color: Color(0xFF09A8C8), fontWeight: FontWeight.bold)),
                         ),

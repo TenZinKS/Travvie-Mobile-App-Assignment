@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/auth/presentation/view/signup_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
-import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/home/presentation/view/dashboard.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -40,7 +42,10 @@ class _LoginViewState extends State<LoginView> {
           body: BlocConsumer<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthSuccess) {
-                Navigator.pushReplacementNamed(context, '/dashboard');
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => const Dashboard()),
+                );
               } else if (state is AuthFailure) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text(state.message)),
@@ -53,7 +58,7 @@ class _LoginViewState extends State<LoginView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/logo/logo.png', height: 120),
+                    Image.asset('assets/logo/logo.png', height: 150),
                     const SizedBox(height: 20),
                     const Text('Welcome Back',
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF09A8C8))),
@@ -107,7 +112,10 @@ class _LoginViewState extends State<LoginView> {
                         const Text("Don't have an account?"),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/signup');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const SignupView()),
+                            );
                           },
                           child: const Text('Sign up',
                               style: TextStyle(color: Color(0xFF09A8C8), fontWeight: FontWeight.bold)),
