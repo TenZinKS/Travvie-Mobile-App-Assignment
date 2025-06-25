@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class ExploreScreen extends StatelessWidget {
-  const ExploreScreen({super.key});
+class TripsScreen extends StatelessWidget {
+  const TripsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Explore"),
+        title: const Text("Trips"),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),

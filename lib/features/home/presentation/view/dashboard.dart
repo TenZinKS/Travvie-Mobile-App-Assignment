@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:travvie/features/home/presentation/bottom_view/explore_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/trips_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
-import 'package:travvie/features/home/presentation/bottom_view/plan_screen.dart';
+import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart'; 
 import 'package:travvie/features/home/presentation/bottom_view/profile_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/saved_screen.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key}); 
+  const Dashboard({super.key});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -15,10 +15,10 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
 
-  List<Widget> lstBottomScreen = [
+  final List<Widget> _screens = [
     const HomeScreen(),
-    const ExploreScreen(),
-    const PlanScreen(),
+    const TripsScreen(),
+    const AiChatScreen(),
     const SavedScreen(),
     const ProfileScreen(),
   ];
@@ -26,35 +26,51 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: lstBottomScreen[_selectedIndex],
+      body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex, 
+        currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() {
-            _selectedIndex = index; 
+            _selectedIndex = index;
           });
         },
         selectedItemColor: const Color(0xFF09A8C8),
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore),
-            label: 'Explore',
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.terrain_sharp),
+            label: 'Trips',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.event_note),
-            label: 'Plan',
+            icon: Transform.translate(
+              offset: const Offset(0, -10), // float slightly above
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFF09A8C8),
+                ),
+                child: const Icon(
+                  Icons.smart_toy_outlined,
+                  size: 34,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            label: 'AI',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             label: 'Saved',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
           ),
