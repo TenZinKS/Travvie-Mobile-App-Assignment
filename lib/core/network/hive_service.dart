@@ -1,90 +1,86 @@
+import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
-import '../../app/constant/hive_table_constants.dart';
-import '../../features/auth/data/model/user_model.dart';
+import 'package:travvie/app/constant/hive_table_constants.dart';
+import 'package:travvie/features/auth/data/model/user_model.dart';
 
 class HiveService {
-  /// Initialize Hive and open required boxes
+  late Box<UserModel> _usersBox;
+  late Box<String> _sessionBox;
+
+  /// Initialize Hive
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
-    final path = '${dir.path}/travvie.db';
+    Hive.init(dir.path);
 
-    Hive.init(path);
-
-    // ✅ Register Hive adapters only once
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(UserModelAdapter());
     }
 
-    // Open commonly used boxes
-    await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
-    await Hive.openBox(HiveTableConstants.sessionBox);
+    _usersBox = await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
+    _sessionBox = await Hive.openBox<String>(HiveTableConstants.sessionBox);
   }
 
-  /// Save a value to a typed box
+  /// Save data
   Future<void> save<T>(String boxName, String key, T value) async {
-    final box = await openBox<T>(boxName);
+    final box = _getBox<T>(boxName);
     await box.put(key, value);
   }
 
-  /// Read a value from a typed box
+  /// Read data
   Future<T?> read<T>(String boxName, String key) async {
-    final box = await openBox<T>(boxName);
+    final box = _getBox<T>(boxName);
     return box.get(key);
   }
 
-  /// Delete a key from a box
+  /// Delete key
   Future<void> delete<T>(String boxName, String key) async {
-    final box = await openBox<T>(boxName);
+    final box = _getBox<T>(boxName);
     await box.delete(key);
   }
 
-  /// Check if a key exists in a box
+  /// Check if key exists
   Future<bool> containsKey<T>(String boxName, String key) async {
-    final box = await openBox<T>(boxName);
+    final box = _getBox<T>(boxName);
     return box.containsKey(key);
   }
 
-  /// Open a typed Hive box
-  Future<Box<T>> openBox<T>(String boxName) async {
-    if (!Hive.isBoxOpen(boxName)) {
-      return await Hive.openBox<T>(boxName);
+  /// Get cached box
+  Box<T> _getBox<T>(String boxName) {
+    if (boxName == HiveTableConstants.usersBox && T == UserModel) {
+      return _usersBox as Box<T>;
+    } else if (boxName == HiveTableConstants.sessionBox && T == String) {
+      return _sessionBox as Box<T>;
+    } else {
+      throw HiveError("Unsupported or uninitialized box: $boxName");
     }
-    return Hive.box<T>(boxName);
   }
 
-  /// Close Hive safely
-  Future<void> close() async {
-    await Hive.close();
-  }
-
-  /// Clear all local Hive storage (for dev/test only)
+  /// Clear boxes
   Future<void> clearAll() async {
-    await Hive.deleteFromDisk();
+    await _usersBox.clear();
+    await _sessionBox.clear();
   }
 
-  /// Debug print keys/values from any box
-  Future<void> debugPrintBox(String boxName) async {
-    final box = await Hive.openBox(boxName);
-    print('[Hive Debug] Box: $boxName');
-    for (var key in box.keys) {
-      print('→ $key = ${box.get(key)}');
-    }
-  }
-
-  /// Seed a dummy user for development/testing
+  /// Seed dummy data
   Future<void> seedDummyUser() async {
-    final box = await openBox<UserModel>(HiveTableConstants.usersBox);
-
     const email = 'demo@travvie.com';
     const password = '123456';
 
-    if (!box.containsKey(email)) {
+    if (!_usersBox.containsKey(email)) {
       final demoUser = UserModel(email: email, password: password);
-      await box.put(email, demoUser);
-      print('[Hive] Dummy user created: $email / $password');
+      await _usersBox.put(email, demoUser);
+      print('[Hive] Dummy user created');
     } else {
       print('[Hive] Dummy user already exists');
+    }
+  }
+
+  /// Debug print
+  Future<void> debugPrintUsers() async {
+    for (var key in _usersBox.keys) {
+      final user = _usersBox.get(key);
+      print('[User] $key → ${user?.email} / ${user?.password}');
     }
   }
 }

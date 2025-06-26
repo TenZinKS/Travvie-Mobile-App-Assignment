@@ -1,4 +1,7 @@
-import 'package:hive/hive.dart';
+
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../../domain/entity/user_entity.dart';
 
 part 'user_model.g.dart';
 
@@ -10,5 +13,22 @@ class UserModel extends HiveObject {
   @HiveField(1)
   final String password;
 
-  UserModel({required this.email, required this.password});
+  UserModel({
+    required this.email,
+    required this.password,
+  });
+
+  factory UserModel.fromEntity(UserEntity entity) {
+    return UserModel(
+      email: entity.email.trim(),
+      password: entity.password.trim(),
+    );
+  }
+
+  UserEntity toEntity() {
+    return UserEntity(
+      email: email.trim(),
+      password: password.trim(),
+    );
+  }
 }

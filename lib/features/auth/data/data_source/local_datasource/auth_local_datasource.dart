@@ -1,5 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
-
+import 'package:travvie/app/constant/hive_table_constants.dart';
+import 'package:travvie/core/network/hive_service.dart';
 import '../../model/user_model.dart';
 
 abstract class AuthLocalDataSource {
@@ -10,29 +11,41 @@ abstract class AuthLocalDataSource {
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
-  static const userBoxName = 'usersBox';
-  static const sessionBoxName = 'sessionBox';
-  static const currentKey = 'currentUserEmail';
+  final HiveService hive;
+
+  AuthLocalDataSourceImpl(this.hive);
 
   @override
   Future<void> registerUser(UserModel user) async {
-    final box = await Hive.openBox<UserModel>(userBoxName);
+    final exists = await hive.containsKey<UserModel>(
+      HiveTableConstants.usersBox,
+      user.email.trim(),
+    );
 
-    if (box.containsKey(user.email.trim())) {
+    if (exists) {
       throw Exception('User already exists');
     }
 
-    await box.put(user.email.trim(), user);
+    await hive.save<UserModel>(
+      HiveTableConstants.usersBox,
+      user.email.trim(),
+      user,
+    );
   }
 
   @override
   Future<UserModel?> loginUser(String email, String password) async {
-    final box = await Hive.openBox<UserModel>(userBoxName);
-    final user = box.get(email.trim());
+    final user = await hive.read<UserModel>(
+      HiveTableConstants.usersBox,
+      email.trim(),
+    );
 
-    if (user != null && user.password == password.trim()) {
-      final sessionBox = await Hive.openBox(sessionBoxName);
-      await sessionBox.put(currentKey, user.email);
+    if (user != null && user.password.trim() == password.trim()) {
+      await hive.save<String>(
+        HiveTableConstants.sessionBox,
+        HiveTableConstants.currentUserEmail,
+        user.email.trim(),
+      );
       return user;
     }
 
@@ -41,14 +54,20 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> logoutUser() async {
-    final sessionBox = await Hive.openBox(sessionBoxName);
-    await sessionBox.delete(currentKey);
+    await hive.delete<String>(
+      HiveTableConstants.sessionBox,
+      HiveTableConstants.currentUserEmail,
+    );
   }
 
   @override
   String? getCurrentUserEmail() {
-    final sessionBox = Hive.box(sessionBoxName);
-    final result = sessionBox.get(currentKey);
-    return result is String ? result : null;
+    // Safe read using typed Hive.box
+    try {
+      final sessionBox = Hive.box<String>(HiveTableConstants.sessionBox);
+      return sessionBox.get(HiveTableConstants.currentUserEmail);
+    } catch (_) {
+      return null;
+    }
   }
 }

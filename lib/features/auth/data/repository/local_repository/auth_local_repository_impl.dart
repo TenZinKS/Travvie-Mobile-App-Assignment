@@ -1,32 +1,32 @@
-import '../../../domain/entity/user_entity.dart';
-import '../../../domain/repository/auth_local_repository.dart';
-import '../../data_source/local_datasource/auth_local_datasource.dart';
-import '../../model/user_model.dart';
+import 'package:travvie/features/auth/data/data_source/local_datasource/auth_local_datasource.dart';
+import 'package:travvie/features/auth/data/model/user_model.dart';
+import 'package:travvie/features/auth/domain/entity/user_entity.dart';
+import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 
 class AuthLocalRepositoryImpl implements AuthLocalRepository {
-  final AuthLocalDataSource local;
+  final AuthLocalDataSource localDataSource;
 
-  AuthLocalRepositoryImpl(this.local);
+  AuthLocalRepositoryImpl(this.localDataSource);
 
   @override
-  Future<void> register(UserEntity user) {
-    return local.registerUser(UserModel(
-      email: user.email,
-      password: user.password,
-    ));
+  Future<void> register(UserEntity user) async {
+    final userModel = UserModel.fromEntity(user);
+    await localDataSource.registerUser(userModel);
   }
 
   @override
   Future<UserEntity?> login(String email, String password) async {
-    final model = await local.loginUser(email, password);
-    return model != null
-        ? UserEntity(email: model.email, password: model.password)
-        : null;
+    final userModel = await localDataSource.loginUser(email.trim(), password.trim());
+    return userModel?.toEntity();
   }
 
   @override
-  Future<void> logout() => local.logoutUser();
+  Future<void> logout() async {
+    await localDataSource.logoutUser();
+  }
 
   @override
-  String? getCurrentUserEmail() => local.getCurrentUserEmail();
+  String? getCurrentUserEmail() {
+    return localDataSource.getCurrentUserEmail();
+  }
 }

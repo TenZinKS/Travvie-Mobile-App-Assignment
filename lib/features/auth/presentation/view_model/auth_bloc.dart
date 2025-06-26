@@ -2,8 +2,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/app/use_case/login_user.dart';
 import 'package:travvie/app/use_case/register_user.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';
-import 'auth_event.dart';
-import 'auth_state.dart';
+import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
+import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
+import 'package:travvie/core/error/failure.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUser loginUser;
@@ -17,31 +18,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
 
-    try {
-      final user = await loginUser(event.email, event.password);
-      if (user != null) {
-        emit(AuthSuccess());
-      } else {
-        emit(AuthFailure("Invalid email or password"));
-      }
-    } catch (e) {
-      emit(AuthFailure("Login failed"));
-    }
+    final result = await loginUser(event.email.trim(), event.password.trim());
+
+    result.fold(
+      (failure) => emit(AuthFailure(_mapFailureToMessage(failure))),
+      (_) => emit(AuthSuccess()),
+    );
   }
 
   Future<void> _onSignup(SignupEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
 
-    try {
-      final newUser = UserEntity(
-        email: event.email.trim(),
-        password: event.password.trim(),
-      );
+    final newUser = UserEntity(
+      email: event.email.trim(),
+      password: event.password.trim(),
+    );
 
-      await registerUser(newUser);
-      emit(AuthSuccess());
-    } catch (e) {
-      emit(AuthFailure("User already exists with this email"));
-    }
+    final result = await registerUser(newUser);
+
+    result.fold(
+      (failure) => emit(AuthFailure(_mapFailureToMessage(failure))),
+      (_) => emit(AuthSuccess()),
+    );
+  }
+
+  String _mapFailureToMessage(Failure failure) {
+    if (failure is LocalDatabaseFailure) return failure.message;
+    if (failure is ApiFailure) return 'API Error: ${failure.statusCode}';
+    if (failure is RemoteDatabaseFailure) return 'Remote DB Error';
+    return 'Unexpected Error';
   }
 }

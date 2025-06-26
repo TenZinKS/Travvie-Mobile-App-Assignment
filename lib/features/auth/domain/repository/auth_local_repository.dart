@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:travvie/core/error/failure.dart';
 import '../entity/user_entity.dart';
 
 abstract class AuthLocalRepository {
@@ -6,3 +8,4 @@ abstract class AuthLocalRepository {
   Future<void> logout();
   String? getCurrentUserEmail();
 }
+

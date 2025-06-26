@@ -32,7 +32,7 @@ class ProfileScreen extends StatelessWidget {
                 sl<AuthLocalRepository>().logout();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginView()),
+                  MaterialPageRoute(builder: (_) =>  LoginView()),
                 );
               },
               style: ElevatedButton.styleFrom(
