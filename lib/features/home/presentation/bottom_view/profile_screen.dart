@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
+import 'package:travvie/features/auth/presentation/view/login_view.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -64,9 +65,14 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
-                    sl<AuthLocalRepository>().logout();
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    await sl<AuthLocalRepository>().logout();
+
+                    // Navigate back to login view
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginView()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
