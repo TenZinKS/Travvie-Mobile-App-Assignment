@@ -1,24 +1,33 @@
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:travvie/app/constant/hive_table_constants.dart';
 import 'package:travvie/features/auth/data/model/user_model.dart';
+import 'package:travvie/features/trip/data/model/trip_model.dart';
 
 class HiveService {
   late Box<UserModel> _usersBox;
   late Box<String> _sessionBox;
+  late Box<TripModel> _tripsBox;
 
   /// Initialize Hive
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
 
+    // Register adapters if not already registered
     if (!Hive.isAdapterRegistered(0)) {
       Hive.registerAdapter(UserModelAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(TripModelAdapter());
+    }
+
     _usersBox = await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
     _sessionBox = await Hive.openBox<String>(HiveTableConstants.sessionBox);
+    _tripsBox = await Hive.openBox<TripModel>(HiveTableConstants.tripsBox);
+
+    print('[Hive] Initialization complete.');
   }
 
   /// Save data
@@ -45,21 +54,24 @@ class HiveService {
     return box.containsKey(key);
   }
 
-  /// Get cached box
+  /// Get the right box
   Box<T> _getBox<T>(String boxName) {
     if (boxName == HiveTableConstants.usersBox && T == UserModel) {
       return _usersBox as Box<T>;
     } else if (boxName == HiveTableConstants.sessionBox && T == String) {
       return _sessionBox as Box<T>;
+    } else if (boxName == HiveTableConstants.tripsBox && T == TripModel) {
+      return _tripsBox as Box<T>;
     } else {
-      throw HiveError("Unsupported or uninitialized box: $boxName");
+      throw HiveError("Unsupported or uninitialized box: $boxName for type $T");
     }
   }
 
-  /// Clear boxes
+  /// Clear all data
   Future<void> clearAll() async {
     await _usersBox.clear();
     await _sessionBox.clear();
+    await _tripsBox.clear();
   }
 
   /// Seed dummy data
@@ -76,11 +88,19 @@ class HiveService {
     }
   }
 
-  /// Debug print
+  /// Debug print users
   Future<void> debugPrintUsers() async {
     for (var key in _usersBox.keys) {
       final user = _usersBox.get(key);
       print('[User] $key → ${user?.email} / ${user?.password}');
+    }
+  }
+
+  /// Debug print trips
+  Future<void> debugPrintTrips() async {
+    for (var key in _tripsBox.keys) {
+      final trip = _tripsBox.get(key);
+      print('[Trip] $key → ${trip?.title} | ${trip?.destination}');
     }
   }
 }

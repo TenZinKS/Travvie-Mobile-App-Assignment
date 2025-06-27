@@ -9,13 +9,13 @@ import 'package:travvie/features/splash/presentation/view_model/splash_cubit.dar
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Register all dependencies before using them
+  // Initialize service locator and all dependencies
   await initLocator();
 
-  // ✅ Now HiveService is safe to use
+  // Init HiveService (register adapters + open boxes)
   await sl<HiveService>().init();
 
-  // (Optional) Step 3: Add dummy user for testing if needed
+  // Optional dummy user
   await sl<HiveService>().seedDummyUser();
 
   runApp(

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:travvie/features/home/presentation/bottom_view/trips_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
-import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart'; 
+import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/profile_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/saved_screen.dart';
+import 'package:travvie/features/trip/presentation/view/trip_screen.dart';
+import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -15,13 +18,23 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const TripsScreen(),
-    const AiChatScreen(),
-    const SavedScreen(),
-    const ProfileScreen(),
-  ];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _screens = [
+      const HomeScreen(),
+      BlocProvider(
+        create: (_) => sl<TripBloc>()..add(LoadTripsEvent()),
+        child: const TripScreen(),
+      ),
+      const AiChatScreen(),
+      const SavedScreen(),
+      const ProfileScreen(),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +63,7 @@ class _DashboardState extends State<Dashboard> {
           ),
           BottomNavigationBarItem(
             icon: Transform.translate(
-              offset: const Offset(0, -10), // float slightly above
+              offset: const Offset(0, -10),
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: const BoxDecoration(
