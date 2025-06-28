@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
+import 'package:travvie/features/trip/presentation/view/trip_details_screen.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
 
 class TripScreen extends StatelessWidget {
@@ -41,48 +42,38 @@ class TripScreen extends StatelessWidget {
           final trip = state.trips[index];
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            elevation: 3,
+            elevation: 2,
+            color: Colors.white,
             child: ListTile(
-              title: Text(trip.title),
+              contentPadding: const EdgeInsets.all(12),
+              title: Text(
+                trip.title,
+                style: const TextStyle(
+                  color: Color(0xFF09A8C8),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Destination: ${trip.destination}"),
-                  Text("Start: ${trip.startDate.toLocal().toIso8601String().substring(0, 10)}"),
-                  Text("End: ${trip.endDate.toLocal().toIso8601String().substring(0, 10)}"),
-                  Text("Itinerary: ${trip.itinerary}"),
-                  Text("Completed: ${trip.isCompleted ? "Yes" : "No"}"),
+                  Text("Dates: ${_formatDate(trip.startDate)} → ${_formatDate(trip.endDate)}"),
+                  Text("Status: ${trip.isCompleted ? "Completed" : "Planned"}"),
                 ],
               ),
-              trailing: PopupMenuButton<String>(
-                onSelected: (value) {
-                  if (value == "Edit") {
-                    _showTripDialog(context, existingTrip: trip);
-                  } else if (value == "Delete") {
-                    BlocProvider.of<TripBloc>(context).add(DeleteTripEvent(trip.id));
-                  } else if (value == "Toggle Complete") {
-                    BlocProvider.of<TripBloc>(context).add(
-                      UpdateTripEvent(
-                        trip.copyWith(isCompleted: !trip.isCompleted),
-                      ),
-                    );
-                  }
-                },
-                itemBuilder: (_) => [
-                  const PopupMenuItem(
-                    value: "Edit",
-                    child: Text("Edit"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Color(0xFF09A8C8)),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider.value(
+                      value: BlocProvider.of<TripBloc>(context),
+                      child: TripDetailsScreen(trip: trip),
+                    ),
                   ),
-                  const PopupMenuItem(
-                    value: "Toggle Complete",
-                    child: Text("Mark as Completed/Not Completed"),
-                  ),
-                  const PopupMenuItem(
-                    value: "Delete",
-                    child: Text("Delete"),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           );
         },
@@ -92,6 +83,11 @@ class TripScreen extends StatelessWidget {
     }
     return const SizedBox();
   }
+
+  String _formatDate(DateTime date) {
+    return "${date.day}/${date.month}/${date.year}";
+  }
+
 
   void _showTripDialog(BuildContext context, {TripEntity? existingTrip}) {
     final titleController = TextEditingController(text: existingTrip?.title);
