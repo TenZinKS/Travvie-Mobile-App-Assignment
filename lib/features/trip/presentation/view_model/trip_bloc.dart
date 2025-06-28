@@ -1,10 +1,12 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 import 'package:travvie/features/trip/domain/use_case/add_trip.dart';
 import 'package:travvie/features/trip/domain/use_case/delete_trip.dart';
 import 'package:travvie/features/trip/domain/use_case/get_all_trips.dart';
 import 'package:travvie/features/trip/domain/use_case/update_trip.dart';
-
+import 'package:travvie/features/saved/domain/use_case/add_saved_trip.dart';
 
 part 'trip_event.dart';
 part 'trip_state.dart';
@@ -14,17 +16,20 @@ class TripBloc extends Bloc<TripEvent, TripState> {
   final GetAllTrips getAllTrips;
   final DeleteTrip deleteTrip;
   final UpdateTrip updateTrip;
+  final AddSavedTrip addSavedTrip;
 
   TripBloc({
     required this.addTrip,
     required this.getAllTrips,
     required this.deleteTrip,
     required this.updateTrip,
+    required this.addSavedTrip,
   }) : super(TripInitial()) {
     on<LoadTripsEvent>(_onLoadTrips);
     on<AddTripEvent>(_onAddTrip);
     on<DeleteTripEvent>(_onDeleteTrip);
     on<UpdateTripEvent>(_onUpdateTrip);
+    on<SaveTripAsWishlistEvent>(_onSaveAsWishlist);
   }
 
   Future<void> _onLoadTrips(
@@ -72,4 +77,38 @@ class TripBloc extends Bloc<TripEvent, TripState> {
       emit(TripError("Failed to update trip: $e"));
     }
   }
+
+  Future<void> _onSaveAsWishlist(
+    SaveTripAsWishlistEvent event,
+    Emitter<TripState> emit,
+) async {
+  emit(TripLoading());
+  try {
+    // ✅ Convert TripEntity → SavedTripEntity
+    final savedTrip = SavedTripEntity(
+      id: event.trip.id,
+      title: event.trip.title,
+      destination: event.trip.destination,
+      startDate: event.trip.startDate,
+      endDate: event.trip.endDate,
+      itinerary: event.trip.itinerary,
+      isCompleted: event.trip.isCompleted,
+    );
+
+    // ✅ Pass the correct type
+    final result = await addSavedTrip(savedTrip);
+
+    if (result.isLeft()) {
+      final failure = result.fold((l) => l, (r) => null);
+      emit(TripError("Failed to save trip as wishlist: ${failure?.message ?? ''}"));
+    } else {
+      await deleteTrip(event.trip.id);
+      final trips = await getAllTrips();
+      emit(TripLoaded(trips));
+    }
+  } catch (e) {
+    emit(TripError("Failed to save trip as wishlist: $e"));
+  }
 }
+}
+

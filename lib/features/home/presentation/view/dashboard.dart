@@ -4,9 +4,11 @@ import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/profile_screen.dart';
-import 'package:travvie/features/home/presentation/bottom_view/saved_screen.dart';
+import 'package:travvie/features/saved/presentation/view/saved_screen.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
 import 'package:travvie/features/trip/presentation/view/trip_screen.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
+
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -31,7 +33,10 @@ class _DashboardState extends State<Dashboard> {
         child: const TripScreen(),
       ),
       const AiChatScreen(),
-      const SavedScreen(),
+      BlocProvider(
+        create: (_) => sl<SavedTripBloc>()..add(LoadSavedTripsEvent()),
+        child: const SavedScreen(),
+      ),
       const ProfileScreen(),
     ];
   }

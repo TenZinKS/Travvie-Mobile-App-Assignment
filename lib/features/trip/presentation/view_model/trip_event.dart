@@ -1,6 +1,11 @@
 part of 'trip_bloc.dart';
 
-abstract class TripEvent {}
+abstract class TripEvent extends Equatable {
+  const TripEvent();
+
+  @override
+  List<Object> get props => [];
+}
 
 class LoadTripsEvent extends TripEvent {}
 
@@ -20,4 +25,13 @@ class UpdateTripEvent extends TripEvent {
   final TripEntity trip;
 
   UpdateTripEvent(this.trip);
+}
+
+class SaveTripAsWishlistEvent extends TripEvent {
+  final TripEntity trip;
+
+  const SaveTripAsWishlistEvent(this.trip);
+
+  @override
+  List<Object> get props => [trip];
 }

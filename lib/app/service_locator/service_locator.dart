@@ -18,19 +18,29 @@ import 'package:travvie/features/trip/domain/use_case/delete_trip.dart';
 import 'package:travvie/features/trip/domain/use_case/update_trip.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
 
+import 'package:travvie/features/saved/data/data_source/local_datasource/local_saved_trip_datasource.dart';
+import 'package:travvie/features/saved/data/repository/local_repository/saved_trip_repository_impl.dart';
+import 'package:travvie/features/saved/domain/repository/saved_trip_repository.dart';
+import 'package:travvie/features/saved/domain/use_case/add_saved_trip.dart';
+import 'package:travvie/features/saved/domain/use_case/get_all_saved_trips.dart';
+import 'package:travvie/features/saved/domain/use_case/delete_saved_trip.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> initLocator() async {
   // Core
   sl.registerLazySingleton<HiveService>(() => HiveService());
 
-  // Data Source
+  // Data Sources
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<LocalTripDataSource>(() => LocalTripDataSourceImpl());
+  sl.registerLazySingleton<LocalSavedTripDataSource>(() => LocalSavedTripDataSourceImpl());
 
-  // Repository
+  // Repositories
   sl.registerLazySingleton<AuthLocalRepository>(() => AuthLocalRepositoryImpl(sl()));
   sl.registerLazySingleton<TripRepository>(() => TripRepositoryImpl(sl()));
+  sl.registerLazySingleton<SavedTripRepository>(() => SavedTripRepositoryImpl(sl()));
 
   // Usecases - Auth
   sl.registerLazySingleton(() => LoginUser(sl()));
@@ -43,16 +53,29 @@ Future<void> initLocator() async {
   sl.registerLazySingleton(() => DeleteTrip(sl()));
   sl.registerLazySingleton(() => UpdateTrip(sl()));
 
+  // Usecases - Saved Trips
+  sl.registerLazySingleton(() => AddSavedTrip(sl()));
+  sl.registerLazySingleton(() => GetAllSavedTrips(sl()));
+  sl.registerLazySingleton(() => DeleteSavedTrip(sl()));
+
   // Cubits
   sl.registerFactory(() => ProfileCubit(sl()));
   sl.registerFactory(() => SplashCubit(sl()));
 
-  // BLoC
+  // BLoCs
   sl.registerFactory(() => AuthBloc(sl(), sl()));
+
   sl.registerFactory(() => TripBloc(
-    addTrip: sl(),
-    getAllTrips: sl(),
-    deleteTrip: sl(),
-    updateTrip: sl(),
-  ));
+  addTrip: sl(),
+  getAllTrips: sl(),
+  deleteTrip: sl(),
+  updateTrip: sl(),
+  addSavedTrip: sl(),
+));
+
+sl.registerFactory(() => SavedTripBloc(
+  addSavedTrip: sl(),
+  getAllSavedTrips: sl(),
+  deleteSavedTrip: sl(),
+));
 }

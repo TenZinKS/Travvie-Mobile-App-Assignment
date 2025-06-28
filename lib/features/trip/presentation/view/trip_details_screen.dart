@@ -108,15 +108,18 @@ class TripDetailsScreen extends StatelessWidget {
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       onPressed: () {
-                        // TODO: add save as wishlist logic
+                        BlocProvider.of<TripBloc>(context).add(
+                          SaveTripAsWishlistEvent(trip),
+                        );
+                        Navigator.pop(context);
                       },
                       icon: const Icon(Icons.favorite_border),
                       label: const Text("Save as Wishlist"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        minimumSize: const Size.fromHeight(48),
+                        backgroundColor: Colors.orangeAccent,
                       ),
                     ),
+
                     const SizedBox(height: 12),
                     ElevatedButton.icon(
                       onPressed: () {

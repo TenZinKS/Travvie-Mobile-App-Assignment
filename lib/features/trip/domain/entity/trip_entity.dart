@@ -40,13 +40,6 @@ class TripEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [
-        id,
-        title,
-        destination,
-        startDate,
-        endDate,
-        itinerary,
-        isCompleted,
-      ];
+  List<Object?> get props =>
+      [id, title, destination, startDate, endDate, itinerary, isCompleted];
 }

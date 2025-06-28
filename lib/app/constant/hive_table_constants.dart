@@ -3,4 +3,5 @@ class HiveTableConstants {
   static const sessionBox = 'sessionBox';
   static const currentUserEmail = 'currentUserEmail';
   static const tripsBox = 'tripsBox';
+  static const savedTripsBox = 'savedTripsBox';
 }

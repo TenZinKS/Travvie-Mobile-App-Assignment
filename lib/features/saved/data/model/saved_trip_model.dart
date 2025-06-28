@@ -1,0 +1,62 @@
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
+
+part 'saved_trip_model.g.dart';
+
+@HiveType(typeId: 2)
+class SavedTripModel extends HiveObject {
+  @HiveField(0)
+  final String id;
+
+  @HiveField(1)
+  final String title;
+
+  @HiveField(2)
+  final String destination;
+
+  @HiveField(3)
+  final DateTime startDate;
+
+  @HiveField(4)
+  final DateTime endDate;
+
+  @HiveField(5)
+  final String itinerary;
+
+  @HiveField(6)
+  final bool isCompleted;
+
+  SavedTripModel({
+    required this.id,
+    required this.title,
+    required this.destination,
+    required this.startDate,
+    required this.endDate,
+    required this.itinerary,
+    required this.isCompleted,
+  });
+
+  SavedTripEntity toEntity() {
+    return SavedTripEntity(
+      id: id,
+      title: title,
+      destination: destination,
+      startDate: startDate,
+      endDate: endDate,
+      itinerary: itinerary,
+      isCompleted: isCompleted,
+    );
+  }
+
+  factory SavedTripModel.fromEntity(SavedTripEntity entity) {
+    return SavedTripModel(
+      id: entity.id,
+      title: entity.title,
+      destination: entity.destination,
+      startDate: entity.startDate,
+      endDate: entity.endDate,
+      itinerary: entity.itinerary,
+      isCompleted: entity.isCompleted,
+    );
+  }
+}

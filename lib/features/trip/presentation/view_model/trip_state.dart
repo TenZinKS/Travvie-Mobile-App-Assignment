@@ -8,12 +8,10 @@ class TripLoading extends TripState {}
 
 class TripLoaded extends TripState {
   final List<TripEntity> trips;
-
   TripLoaded(this.trips);
 }
 
 class TripError extends TripState {
   final String message;
-
   TripError(this.message);
 }
