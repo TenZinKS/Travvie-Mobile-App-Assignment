@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/auth/data/data_source/local_datasource/auth_local_datasource.dart';
 import 'package:travvie/features/auth/data/model/user_model.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';
@@ -16,7 +18,10 @@ class AuthLocalRepositoryImpl implements AuthLocalRepository {
 
   @override
   Future<UserEntity?> login(String email, String password) async {
-    final userModel = await localDataSource.loginUser(email.trim(), password.trim());
+    final userModel = await localDataSource.loginUser(
+      email.trim(),
+      password.trim(),
+    );
     return userModel?.toEntity();
   }
 
@@ -28,5 +33,23 @@ class AuthLocalRepositoryImpl implements AuthLocalRepository {
   @override
   String? getCurrentUserEmail() {
     return localDataSource.getCurrentUserEmail();
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String email,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await localDataSource.changePassword(
+        email: email,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 }

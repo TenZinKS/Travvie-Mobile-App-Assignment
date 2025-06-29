@@ -1,6 +1,4 @@
-
 import 'package:hive_flutter/hive_flutter.dart';
-
 import '../../domain/entity/user_entity.dart';
 
 part 'user_model.g.dart';
@@ -29,6 +27,16 @@ class UserModel extends HiveObject {
     return UserEntity(
       email: email.trim(),
       password: password.trim(),
+    );
+  }
+
+  UserModel copyWith({
+    String? email,
+    String? password,
+  }) {
+    return UserModel(
+      email: email ?? this.email,
+      password: password ?? this.password,
     );
   }
 }

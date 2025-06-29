@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
+import 'package:travvie/features/saved/presentation/view/change_password_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -21,7 +22,6 @@ class ProfileScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 30),
 
-          // Avatar + Email
           CircleAvatar(
             radius: 45,
             backgroundColor: const Color(0xFF09A8C8),
@@ -34,7 +34,6 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 30),
 
-          // Action Buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
@@ -44,7 +43,7 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.edit,
                   label: "Edit Profile",
                   onTap: () {
-                    // Navigate to edit profile screen
+                    // TODO: Navigate to edit profile screen
                   },
                 ),
                 _profileButton(
@@ -52,7 +51,19 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.lock,
                   label: "Change Password",
                   onTap: () {
-                    // Navigate to change password screen
+                    if (userEmail == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("No user logged in.")),
+                      );
+                      return;
+                    }
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChangePasswordScreen(userEmail: userEmail),
+                      ),
+                    );
                   },
                 ),
                 _profileButton(
@@ -60,7 +71,7 @@ class ProfileScreen extends StatelessWidget {
                   icon: Icons.history,
                   label: "Check Travel History",
                   onTap: () {
-                    // Navigate to travel history screen
+                    // TODO: Navigate to travel history screen
                   },
                 ),
                 const SizedBox(height: 20),
@@ -68,7 +79,6 @@ class ProfileScreen extends StatelessWidget {
                   onPressed: () async {
                     await sl<AuthLocalRepository>().logout();
 
-                    // Navigate back to login view
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => const LoginView()),
@@ -89,8 +99,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _profileButton(BuildContext context,
-      {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _profileButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: InkWell(

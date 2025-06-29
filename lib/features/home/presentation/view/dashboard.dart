@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
 import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart';
-import 'package:travvie/features/home/presentation/bottom_view/profile_screen.dart';
+import 'package:travvie/features/profile/presentation/view/profile_screen.dart';
 import 'package:travvie/features/saved/presentation/view/saved_screen.dart';
 import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
 import 'package:travvie/features/trip/presentation/view/trip_screen.dart';

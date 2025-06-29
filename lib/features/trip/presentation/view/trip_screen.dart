@@ -13,7 +13,8 @@ class TripScreen extends StatelessWidget {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text("Your Trips"),
+            title: const Text("Your Trips",
+            style: TextStyle(color: Colors.white),),
             backgroundColor: const Color(0xFF09A8C8),
           ),
           floatingActionButton: FloatingActionButton(
