@@ -33,30 +33,36 @@ Future<void> initLocator() async {
   sl.registerLazySingleton<HiveService>(() => HiveService());
 
   // Data Sources
-  sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
-  sl.registerLazySingleton<LocalTripDataSource>(() => LocalTripDataSourceImpl());
-  sl.registerLazySingleton<LocalSavedTripDataSource>(() => LocalSavedTripDataSourceImpl());
+  sl.registerLazySingleton<AuthLocalDataSource>(
+      () => AuthLocalDataSourceImpl(sl<HiveService>()));
+  sl.registerLazySingleton<LocalTripDataSource>(
+      () => LocalTripDataSourceImpl(sl<HiveService>()));
+  sl.registerLazySingleton<LocalSavedTripDataSource>(
+      () => LocalSavedTripDataSourceImpl(sl<HiveService>()));
 
   // Repositories
-  sl.registerLazySingleton<AuthLocalRepository>(() => AuthLocalRepositoryImpl(sl()));
-  sl.registerLazySingleton<TripRepository>(() => TripRepositoryImpl(sl()));
-  sl.registerLazySingleton<SavedTripRepository>(() => SavedTripRepositoryImpl(sl()));
+  sl.registerLazySingleton<AuthLocalRepository>(
+      () => AuthLocalRepositoryImpl(sl<AuthLocalDataSource>()));
+  sl.registerLazySingleton<TripRepository>(
+      () => TripRepositoryImpl(sl<LocalTripDataSource>()));
+  sl.registerLazySingleton<SavedTripRepository>(
+      () => SavedTripRepositoryImpl(sl<LocalSavedTripDataSource>()));
 
   // Usecases - Auth
-  sl.registerLazySingleton(() => LoginUser(sl()));
-  sl.registerLazySingleton(() => RegisterUser(sl()));
-  sl.registerLazySingleton(() => GetUserEmail(sl()));
+  sl.registerLazySingleton(() => LoginUser(sl<AuthLocalRepository>()));
+  sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
+  sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
 
-  // Usecases - Trip
-  sl.registerLazySingleton(() => AddTrip(sl()));
-  sl.registerLazySingleton(() => GetAllTrips(sl()));
-  sl.registerLazySingleton(() => DeleteTrip(sl()));
-  sl.registerLazySingleton(() => UpdateTrip(sl()));
+  // Usecases - Trips
+  sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
+  sl.registerLazySingleton(() => GetAllTrips(sl<TripRepository>()));
+  sl.registerLazySingleton(() => DeleteTrip(sl<TripRepository>()));
+  sl.registerLazySingleton(() => UpdateTrip(sl<TripRepository>()));
 
   // Usecases - Saved Trips
-  sl.registerLazySingleton(() => AddSavedTrip(sl()));
-  sl.registerLazySingleton(() => GetAllSavedTrips(sl()));
-  sl.registerLazySingleton(() => DeleteSavedTrip(sl()));
+  sl.registerLazySingleton(() => AddSavedTrip(sl<SavedTripRepository>()));
+  sl.registerLazySingleton(() => GetAllSavedTrips(sl<SavedTripRepository>()));
+  sl.registerLazySingleton(() => DeleteSavedTrip(sl<SavedTripRepository>()));
 
   // Cubits
   sl.registerFactory(() => ProfileCubit(sl()));
@@ -66,16 +72,16 @@ Future<void> initLocator() async {
   sl.registerFactory(() => AuthBloc(sl(), sl()));
 
   sl.registerFactory(() => TripBloc(
-  addTrip: sl(),
-  getAllTrips: sl(),
-  deleteTrip: sl(),
-  updateTrip: sl(),
-  addSavedTrip: sl(),
-));
+        addTrip: sl(),
+        getAllTrips: sl(),
+        deleteTrip: sl(),
+        updateTrip: sl(),
+        addSavedTrip: sl(),
+      ));
 
-sl.registerFactory(() => SavedTripBloc(
-  addSavedTrip: sl(),
-  getAllSavedTrips: sl(),
-  deleteSavedTrip: sl(),
-));
+  sl.registerFactory(() => SavedTripBloc(
+        addSavedTrip: sl(),
+        getAllSavedTrips: sl(),
+        deleteSavedTrip: sl(),
+      ));
 }

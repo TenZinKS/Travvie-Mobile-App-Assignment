@@ -8,8 +8,9 @@ import 'package:travvie/features/saved/data/model/saved_trip_model.dart';
 class HiveService {
   late Box<UserModel> _usersBox;
   late Box<String> _sessionBox;
-  late Box<TripModel> _tripsBox;
-  late Box<SavedTripModel> _savedTripsBox;
+
+  Box<TripModel>? _tripsBox;
+  Box<SavedTripModel>? _savedTripsBox;
 
   /// Initialize Hive
   Future<void> init() async {
@@ -28,10 +29,24 @@ class HiveService {
 
     _usersBox = await Hive.openBox<UserModel>(HiveTableConstants.usersBox);
     _sessionBox = await Hive.openBox<String>(HiveTableConstants.sessionBox);
-    _tripsBox = await Hive.openBox<TripModel>(HiveTableConstants.tripsBox);
-    _savedTripsBox = await Hive.openBox<SavedTripModel>(HiveTableConstants.savedTripsBox);
 
-    print('[Hive] Initialization complete.');
+    print('[Hive] Core initialization complete.');
+  }
+
+  /// Call this after login
+  Future<void> openUserBoxes() async {
+    final email = getCurrentUserEmail();
+    if (email == null) {
+      throw Exception("Cannot open boxes: no user logged in.");
+    }
+
+    final tripsBoxName = "${HiveTableConstants.tripsBox}_$email";
+    final savedTripsBoxName = "${HiveTableConstants.savedTripsBox}_$email";
+
+    _tripsBox = await Hive.openBox<TripModel>(tripsBoxName);
+    _savedTripsBox = await Hive.openBox<SavedTripModel>(savedTripsBoxName);
+
+    print('[Hive] User boxes opened for $email');
   }
 
   /// Save data
@@ -70,21 +85,37 @@ class HiveService {
       return _usersBox as Box<T>;
     } else if (boxName == HiveTableConstants.sessionBox && T == String) {
       return _sessionBox as Box<T>;
-    } else if (boxName == HiveTableConstants.tripsBox && T == TripModel) {
+    } else if (boxName.startsWith(HiveTableConstants.tripsBox) && T == TripModel) {
+      if (_tripsBox == null) {
+        throw HiveError("Trips box has not been opened yet.");
+      }
       return _tripsBox as Box<T>;
-    } else if (boxName == HiveTableConstants.savedTripsBox && T == SavedTripModel) {
+    } else if (boxName.startsWith(HiveTableConstants.savedTripsBox) && T == SavedTripModel) {
+      if (_savedTripsBox == null) {
+        throw HiveError("Saved trips box has not been opened yet.");
+      }
       return _savedTripsBox as Box<T>;
     } else {
       throw HiveError("Unsupported or uninitialized box: $boxName for type $T");
     }
   }
 
-  /// Clear all data
-  Future<void> clearAll() async {
+  /// Clear all user-specific boxes
+  Future<void> clearUserData() async {
+    await _tripsBox?.clear();
+    await _savedTripsBox?.clear();
+  }
+
+  /// Clear global boxes
+  Future<void> clearGlobalData() async {
     await _usersBox.clear();
     await _sessionBox.clear();
-    await _tripsBox.clear();
-    await _savedTripsBox.clear();
+  }
+
+  /// Clear everything
+  Future<void> clearAll() async {
+    await clearUserData();
+    await clearGlobalData();
   }
 
   /// Seed dummy user
@@ -101,26 +132,23 @@ class HiveService {
     }
   }
 
-  /// Debug print users
-  Future<void> debugPrintUsers() async {
-    for (var key in _usersBox.keys) {
-      final user = _usersBox.get(key);
-      print('[User] $key → ${user?.email} / ${user?.password}');
-    }
+  /// Get current logged in user's email
+  String? getCurrentUserEmail() {
+    return _sessionBox.get(HiveTableConstants.currentUserEmail);
   }
 
   /// Debug print trips
   Future<void> debugPrintTrips() async {
-    for (var key in _tripsBox.keys) {
-      final trip = _tripsBox.get(key);
+    for (var key in _tripsBox?.keys ?? []) {
+      final trip = _tripsBox?.get(key);
       print('[Trip] $key → ${trip?.title} | ${trip?.destination}');
     }
   }
 
   /// Debug print saved trips
   Future<void> debugPrintSavedTrips() async {
-    for (var key in _savedTripsBox.keys) {
-      final trip = _savedTripsBox.get(key);
+    for (var key in _savedTripsBox?.keys ?? []) {
+      final trip = _savedTripsBox?.get(key);
       print('[SavedTrip] $key → ${trip?.title} | ${trip?.destination}');
     }
   }

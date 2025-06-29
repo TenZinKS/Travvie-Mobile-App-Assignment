@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/app/constant/hive_table_constants.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/app/use_case/login_user.dart';
 import 'package:travvie/app/use_case/register_user.dart';
+import 'package:travvie/core/network/hive_service.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
@@ -20,9 +23,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await loginUser(event.email.trim(), event.password.trim());
 
-    result.fold(
-      (failure) => emit(AuthFailure(_mapFailureToMessage(failure))),
-      (_) => emit(AuthSuccess()),
+    await result.fold(
+      (failure) async {
+        emit(AuthFailure(_mapFailureToMessage(failure)));
+      },
+      (user) async {
+        // ✅ This opens user-specific boxes!
+        await sl<HiveService>().openUserBoxes();
+        emit(AuthSuccess());
+      },
     );
   }
 
@@ -36,11 +45,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     final result = await registerUser(newUser);
 
-    result.fold(
-      (failure) => emit(AuthFailure(_mapFailureToMessage(failure))),
-      (_) => emit(AuthSuccess()),
+    await result.fold(
+      (failure) async {
+        emit(AuthFailure(_mapFailureToMessage(failure)));
+      },
+      (_) async {
+        // ✅ Save the newly registered user as logged in
+        await sl<HiveService>().save<String>(
+          HiveTableConstants.sessionBox,
+          HiveTableConstants.currentUserEmail,
+          newUser.email,
+        );
+
+        await sl<HiveService>().openUserBoxes();
+        emit(AuthSuccess());
+      },
     );
   }
+
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is LocalDatabaseFailure) return failure.message;
