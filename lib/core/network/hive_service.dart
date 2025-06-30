@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:travvie/app/constant/hive_table_constants.dart';
@@ -12,7 +13,7 @@ class HiveService {
   Box<TripModel>? _tripsBox;
   Box<SavedTripModel>? _savedTripsBox;
 
-  /// Initialize Hive
+  /// Initialize Hive (called once in main)
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
@@ -151,5 +152,33 @@ class HiveService {
       final trip = _savedTripsBox?.get(key);
       print('[SavedTrip] $key → ${trip?.title} | ${trip?.destination}');
     }
+  }
+
+  ///USER PROFILE IMAGE
+  
+  /// Open user-specific box for profile info
+  Future<Box> openUserBox(String email) async {
+    final boxName = "${email}_box";
+    return Hive.isBoxOpen(boxName)
+        ? Hive.box(boxName)
+        : await Hive.openBox(boxName);
+  }
+
+  /// Save profile image path
+  Future<void> saveProfileImagePath(String email, String imagePath) async {
+    final box = await openUserBox(email);
+    await box.put('profileImagePath', imagePath);
+  }
+
+  /// Read profile image path
+  Future<String?> getProfileImagePath(String email) async {
+    final box = await openUserBox(email);
+    return box.get('profileImagePath');
+  }
+
+  /// Delete profile image path
+  Future<void> deleteProfileImagePath(String email) async {
+    final box = await openUserBox(email);
+    await box.delete('profileImagePath');
   }
 }

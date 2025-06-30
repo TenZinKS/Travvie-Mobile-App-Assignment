@@ -1,16 +1,59 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/core/network/hive_service.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
 import 'package:travvie/features/saved/presentation/view/change_password_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final userEmail = sl<AuthLocalRepository>().getCurrentUserEmail();
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  String? userEmail;
+  String? _imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    userEmail = sl<AuthLocalRepository>().getCurrentUserEmail();
+    _loadProfileImage();
+  }
+
+  Future<void> _loadProfileImage() async {
+    if (userEmail == null) return;
+    final path = await sl<HiveService>().getProfileImagePath(userEmail!);
+    if (mounted) {
+      setState(() {
+        _imagePath = path;
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    if (userEmail == null) return;
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      await sl<HiveService>().saveProfileImagePath(userEmail!, picked.path);
+      setState(() {
+        _imagePath = picked.path;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Profile image updated.")),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF09A8C8),
@@ -22,11 +65,18 @@ class ProfileScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 30),
 
-          CircleAvatar(
-            radius: 45,
-            backgroundColor: const Color(0xFF09A8C8),
-            child: const Icon(Icons.person, size: 50, color: Colors.white),
+          GestureDetector(
+            onTap: _pickImage,
+            child: CircleAvatar(
+              radius: 45,
+              backgroundColor: const Color(0xFF09A8C8),
+              backgroundImage: _imagePath != null ? FileImage(File(_imagePath!)) : null,
+              child: _imagePath == null
+                  ? const Icon(Icons.person, size: 50, color: Colors.white)
+                  : null,
+            ),
           ),
+
           const SizedBox(height: 12),
           Text(
             userEmail ?? 'Unknown User',
@@ -61,7 +111,7 @@ class ProfileScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChangePasswordScreen(userEmail: userEmail),
+                        builder: (_) => ChangePasswordScreen(userEmail: userEmail!),
                       ),
                     );
                   },
