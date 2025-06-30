@@ -40,12 +40,14 @@ class AuthLocalRepositoryImpl implements AuthLocalRepository {
     required String email,
     required String currentPassword,
     required String newPassword,
+    bool isForgotPassword = false,
   }) async {
     try {
       await localDataSource.changePassword(
         email: email,
         currentPassword: currentPassword,
         newPassword: newPassword,
+        isForgotPassword: isForgotPassword,
       );
       return const Right(null);
     } catch (e) {

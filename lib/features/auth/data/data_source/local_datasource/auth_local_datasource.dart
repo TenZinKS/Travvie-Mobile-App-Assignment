@@ -8,10 +8,14 @@ abstract class AuthLocalDataSource {
   Future<UserModel?> loginUser(String email, String password);
   Future<void> logoutUser();
   String? getCurrentUserEmail();
+
+  /// Changes a user's password.
+  /// [isForgotPassword] = true → skip checking current password.
   Future<void> changePassword({
     required String email,
     required String currentPassword,
     required String newPassword,
+    bool isForgotPassword = false,
   });
 }
 
@@ -80,8 +84,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     required String email,
     required String currentPassword,
     required String newPassword,
+    bool isForgotPassword = false,
   }) async {
-    // Read the user directly via HiveService
     final user = await hive.read<UserModel>(
       HiveTableConstants.usersBox,
       email.trim(),
@@ -91,12 +95,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       throw Exception("User not found.");
     }
 
-    if (user.password.trim() != currentPassword.trim()) {
-      throw Exception("Current password does not match.");
+    if (!isForgotPassword) {
+      // Normal change → check current password
+      if (user.password.trim() != currentPassword.trim()) {
+        throw Exception("Current password does not match.");
+      }
     }
 
     final updatedUser = user.copyWith(password: newPassword.trim());
-
     await hive.save<UserModel>(
       HiveTableConstants.usersBox,
       email.trim(),

@@ -13,6 +13,7 @@ abstract class AuthLocalRepository {
     required String email,
     required String currentPassword,
     required String newPassword,
+    bool isForgotPassword,
   });
 }
 

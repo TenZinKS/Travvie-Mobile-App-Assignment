@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/auth/presentation/view/forgot_password_view.dart';
 import 'package:travvie/features/auth/presentation/view/signup_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
@@ -60,11 +61,19 @@ class _LoginViewState extends State<LoginView> {
                   children: [
                     Image.asset('assets/logo/logo.png', height: 150),
                     const SizedBox(height: 20),
-                    const Text('Welcome Back',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF09A8C8))),
+                    const Text(
+                      'Welcome Back',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF09A8C8),
+                      ),
+                    ),
                     const SizedBox(height: 10),
-                    const Text('Log in to your Travvie account',
-                        style: TextStyle(fontSize: 16, color: Colors.black54)),
+                    const Text(
+                      'Log in to your Travvie account',
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
                     const SizedBox(height: 40),
                     TextField(
                       controller: emailController,
@@ -82,7 +91,29 @@ class _LoginViewState extends State<LoginView> {
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
+
+                    // ✅ NEW FORGOT PASSWORD BUTTON
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const ForgotPasswordView()),
+                          );
+                        },
+                        child: const Text(
+                          "Forgot Password?",
+                          style: TextStyle(
+                            color: Color(0xFF09A8C8),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       height: 50,
@@ -117,8 +148,13 @@ class _LoginViewState extends State<LoginView> {
                               MaterialPageRoute(builder: (_) => const SignupView()),
                             );
                           },
-                          child: const Text('Sign up',
-                              style: TextStyle(color: Color(0xFF09A8C8), fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Sign up',
+                            style: TextStyle(
+                              color: Color(0xFF09A8C8),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),

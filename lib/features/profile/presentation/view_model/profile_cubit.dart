@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/profile/domain/use_case/get_user_email.dart';
 import 'package:travvie/features/auth/domain/use_case/change_password.dart';
 

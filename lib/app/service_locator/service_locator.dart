@@ -6,6 +6,7 @@ import 'package:travvie/features/auth/data/data_source/local_datasource/auth_loc
 import 'package:travvie/features/auth/data/repository/local_repository/auth_local_repository_impl.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 import 'package:travvie/features/auth/domain/use_case/change_password.dart';
+import 'package:travvie/features/auth/domain/use_case/forgot_password.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/profile/domain/use_case/get_user_email.dart';
 import 'package:travvie/features/profile/presentation/view_model/profile_cubit.dart';
@@ -54,6 +55,8 @@ Future<void> initLocator() async {
   sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ChangePassword(sl<AuthLocalRepository>()));
+  sl.registerLazySingleton(() => ForgotPassword(sl()));
+
 
   // Usecases - Trips
   sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
