@@ -30,6 +30,20 @@ class UserModel extends HiveObject {
     );
   }
 
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      email: json["email"] as String,
+      password: json["password"] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "email": email,
+      "password": password,
+    };
+  }
+
   UserModel copyWith({
     String? email,
     String? password,
