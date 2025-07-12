@@ -1,8 +1,12 @@
-import '../entity/trip_entity.dart';
+// lib/features/trip/domain/repository/trip_repository.dart
+
+import 'package:dartz/dartz.dart';
+import 'package:travvie/core/error/failure.dart';
+import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 
 abstract class TripRepository {
-  Future<void> addTrip(TripEntity trip);
-  Future<List<TripEntity>> getAllTrips();
-  Future<void> deleteTrip(String id);
-  Future<void> updateTrip(TripEntity trip);
+  Future<Either<Failure, List<TripEntity>>> getAllTrips();
+  Future<Either<Failure, void>> addTrip(TripEntity trip);
+  Future<Either<Failure, void>> updateTrip(TripEntity trip);
+  Future<Either<Failure, void>> deleteTrip(String tripId);
 }

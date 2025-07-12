@@ -63,12 +63,13 @@ import 'package:travvie/features/deepseek/domain/repository/deepseek_repository.
 import 'package:travvie/features/deepseek/domain/use_case/generate_trip.dart';
 import 'package:travvie/features/deepseek/presentation/view_model/deepseek_bloc.dart';
 
+// DASHBOARD
+import 'package:travvie/features/dashboard/presentation/view_model/dashboard_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> initLocator() async {
-  // ------------------------
   // CORE
-  // ------------------------
   sl.registerLazySingleton<Dio>(() => Dio());
   sl.registerLazySingleton<ApiService>(() => ApiService(sl<Dio>()));
   sl.registerLazySingleton<HiveService>(() => HiveService());
@@ -77,34 +78,28 @@ Future<void> initLocator() async {
     () => NetworkInfoImpl(sl<Connectivity>()),
   );
 
-  // ------------------------
   // DATA SOURCES
-  // ------------------------
-
-  // Local Data Sources
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sl<HiveService>()),
   );
+
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(sl<ApiService>()),
+  );
+
   sl.registerLazySingleton<LocalTripDataSource>(
     () => LocalTripDataSourceImpl(sl<HiveService>()),
   );
+
   sl.registerLazySingleton<LocalSavedTripDataSource>(
     () => LocalSavedTripDataSourceImpl(sl<HiveService>()),
   );
 
-  // Remote Data Sources
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl<ApiService>()),
-  );
   sl.registerLazySingleton<RemoteDeepSeekDataSource>(
     () => RemoteDeepSeekDataSourceImpl(sl<ApiService>()),
   );
 
-  // ------------------------
   // REPOSITORIES
-  // ------------------------
-
-  // Auth Repositories
   sl.registerLazySingleton<AuthLocalRepository>(
     () => AuthLocalRepositoryImpl(sl<AuthLocalDataSource>()),
   );
@@ -117,53 +112,42 @@ Future<void> initLocator() async {
     ),
   );
 
-  // Trips Repository
   sl.registerLazySingleton<TripRepository>(
     () => TripRepositoryImpl(sl<LocalTripDataSource>()),
   );
 
-  // Saved Trips Repository
   sl.registerLazySingleton<SavedTripRepository>(
     () => SavedTripRepositoryImpl(sl<LocalSavedTripDataSource>()),
   );
 
-  // DeepSeek Repository
   sl.registerLazySingleton<DeepSeekRepository>(
-    () => DeepSeekRepositoryImpl(sl<RemoteDeepSeekDataSource>()),
+    () => DeepSeekRepositoryImpl(
+      remoteDataSource: sl<RemoteDeepSeekDataSource>(),
+    ),
   );
 
-  // ------------------------
   // USE CASES
-  // ------------------------
-
-  // Auth - Remote
   sl.registerLazySingleton(() => RemoteLoginUser(sl<AuthRemoteRepository>()));
   sl.registerLazySingleton(() => RemoteRegisterUser(sl<AuthRemoteRepository>()));
 
-  // Auth - Local
   sl.registerLazySingleton(() => LoginUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ChangePassword(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ForgotPassword(sl<AuthLocalRepository>()));
 
-  // Trips
   sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
   sl.registerLazySingleton(() => GetAllTrips(sl<TripRepository>()));
   sl.registerLazySingleton(() => DeleteTrip(sl<TripRepository>()));
   sl.registerLazySingleton(() => UpdateTrip(sl<TripRepository>()));
 
-  // Saved Trips
   sl.registerLazySingleton(() => AddSavedTrip(sl<SavedTripRepository>()));
   sl.registerLazySingleton(() => GetAllSavedTrips(sl<SavedTripRepository>()));
   sl.registerLazySingleton(() => DeleteSavedTrip(sl<SavedTripRepository>()));
 
-  // DeepSeek
   sl.registerLazySingleton(() => GenerateTrip(sl<DeepSeekRepository>()));
 
-  // ------------------------
   // BLOCS & CUBITS
-  // ------------------------
   sl.registerFactory(() => ProfileCubit(
         sl<GetUserEmail>(),
         sl<ChangePassword>(),
@@ -181,7 +165,6 @@ Future<void> initLocator() async {
         getAllTrips: sl(),
         deleteTrip: sl(),
         updateTrip: sl(),
-        addSavedTrip: sl(),
       ));
 
   sl.registerFactory(() => SavedTripBloc(
@@ -193,4 +176,7 @@ Future<void> initLocator() async {
   sl.registerFactory(() => DeepSeekBloc(
         sl<GenerateTrip>(),
       ));
+
+  // REGISTER DASHBOARD BLOC
+  sl.registerFactory(() => DashboardBloc());
 }

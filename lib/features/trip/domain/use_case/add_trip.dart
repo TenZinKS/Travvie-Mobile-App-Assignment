@@ -1,12 +1,16 @@
-import '../entity/trip_entity.dart';
-import '../repository/trip_repository.dart';
+// lib/features/trip/domain/use_case/add_trip.dart
+
+import 'package:dartz/dartz.dart';
+import 'package:travvie/core/error/failure.dart';
+import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
+import 'package:travvie/features/trip/domain/repository/trip_repository.dart';
 
 class AddTrip {
   final TripRepository repository;
 
   AddTrip(this.repository);
 
-  Future<void> call(TripEntity trip) {
+  Future<Either<Failure, void>> call(TripEntity trip) {
     return repository.addTrip(trip);
   }
 }

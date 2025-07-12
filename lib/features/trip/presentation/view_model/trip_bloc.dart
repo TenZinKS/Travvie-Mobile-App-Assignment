@@ -1,114 +1,68 @@
-import 'package:equatable/equatable.dart';
+// lib/features/trip/presentation/view_model/trip_bloc.dart
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
-import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
+import 'package:travvie/features/trip/domain/use_case/get_all_trips.dart';
 import 'package:travvie/features/trip/domain/use_case/add_trip.dart';
 import 'package:travvie/features/trip/domain/use_case/delete_trip.dart';
-import 'package:travvie/features/trip/domain/use_case/get_all_trips.dart';
 import 'package:travvie/features/trip/domain/use_case/update_trip.dart';
-import 'package:travvie/features/saved/domain/use_case/add_saved_trip.dart';
-
-part 'trip_event.dart';
-part 'trip_state.dart';
+import 'package:travvie/features/trip/presentation/view_model/trip_event.dart';
+import 'package:travvie/features/trip/presentation/view_model/trip_state.dart';
 
 class TripBloc extends Bloc<TripEvent, TripState> {
-  final AddTrip addTrip;
   final GetAllTrips getAllTrips;
+  final AddTrip addTrip;
   final DeleteTrip deleteTrip;
   final UpdateTrip updateTrip;
-  final AddSavedTrip addSavedTrip;
 
   TripBloc({
-    required this.addTrip,
     required this.getAllTrips,
+    required this.addTrip,
     required this.deleteTrip,
     required this.updateTrip,
-    required this.addSavedTrip,
   }) : super(TripInitial()) {
     on<LoadTripsEvent>(_onLoadTrips);
     on<AddTripEvent>(_onAddTrip);
     on<DeleteTripEvent>(_onDeleteTrip);
     on<UpdateTripEvent>(_onUpdateTrip);
-    on<SaveTripAsWishlistEvent>(_onSaveAsWishlist);
   }
 
   Future<void> _onLoadTrips(
       LoadTripsEvent event, Emitter<TripState> emit) async {
     emit(TripLoading());
-    try {
-      final trips = await getAllTrips();
-      emit(TripLoaded(trips));
-    } catch (e) {
-      emit(TripError("Failed to load trips: $e"));
-    }
+    final result = await getAllTrips();
+    result.fold(
+      (failure) => emit(TripError(failure.message)),
+      (trips) => emit(TripLoaded(trips)),
+    );
   }
 
-  Future<void> _onAddTrip(AddTripEvent event, Emitter<TripState> emit) async {
+  Future<void> _onAddTrip(
+      AddTripEvent event, Emitter<TripState> emit) async {
     emit(TripLoading());
-    try {
-      await addTrip(event.trip);
-      final trips = await getAllTrips();
-      emit(TripLoaded(trips));
-    } catch (e) {
-      emit(TripError("Failed to add trip: $e"));
-    }
+    final result = await addTrip(event.trip);
+    result.fold(
+      (failure) => emit(TripError(failure.message)),
+      (_) => add(LoadTripsEvent()),
+    );
   }
 
   Future<void> _onDeleteTrip(
       DeleteTripEvent event, Emitter<TripState> emit) async {
     emit(TripLoading());
-    try {
-      await deleteTrip(event.tripId);
-      final trips = await getAllTrips();
-      emit(TripLoaded(trips));
-    } catch (e) {
-      emit(TripError("Failed to delete trip: $e"));
-    }
+    final result = await deleteTrip(event.tripId);
+    result.fold(
+      (failure) => emit(TripError(failure.message)),
+      (_) => add(LoadTripsEvent()),
+    );
   }
 
   Future<void> _onUpdateTrip(
       UpdateTripEvent event, Emitter<TripState> emit) async {
     emit(TripLoading());
-    try {
-      await updateTrip(event.trip);
-      final trips = await getAllTrips();
-      emit(TripLoaded(trips));
-    } catch (e) {
-      emit(TripError("Failed to update trip: $e"));
-    }
-  }
-
-  Future<void> _onSaveAsWishlist(
-    SaveTripAsWishlistEvent event,
-    Emitter<TripState> emit,
-) async {
-  emit(TripLoading());
-  try {
-    // ✅ Convert TripEntity → SavedTripEntity
-    final savedTrip = SavedTripEntity(
-      id: event.trip.id,
-      title: event.trip.title,
-      destination: event.trip.destination,
-      startDate: event.trip.startDate,
-      endDate: event.trip.endDate,
-      itinerary: event.trip.itinerary,
-      isCompleted: event.trip.isCompleted,
+    final result = await updateTrip(event.trip);
+    result.fold(
+      (failure) => emit(TripError(failure.message)),
+      (_) => add(LoadTripsEvent()),
     );
-
-    // ✅ Pass the correct type
-    final result = await addSavedTrip(savedTrip);
-
-    if (result.isLeft()) {
-      final failure = result.fold((l) => l, (r) => null);
-      emit(TripError("Failed to save trip as wishlist: ${failure?.message ?? ''}"));
-    } else {
-      await deleteTrip(event.trip.id);
-      final trips = await getAllTrips();
-      emit(TripLoaded(trips));
-    }
-  } catch (e) {
-    emit(TripError("Failed to save trip as wishlist: $e"));
   }
 }
-}
-

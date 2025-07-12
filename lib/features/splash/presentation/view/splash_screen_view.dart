@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
-import 'package:travvie/features/home/presentation/view/dashboard.dart';
+import 'package:travvie/features/dashboard/presentation/view/dashboard.dart';
 import '../view_model/splash_cubit.dart';
 import '../view_model/splash_state.dart';
 

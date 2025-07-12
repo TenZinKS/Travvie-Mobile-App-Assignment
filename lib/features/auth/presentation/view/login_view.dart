@@ -7,7 +7,7 @@ import 'package:travvie/features/auth/presentation/view/signup_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
-import 'package:travvie/features/home/presentation/view/dashboard.dart';
+import 'package:travvie/features/dashboard/presentation/view/dashboard.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});

@@ -1,7 +1,9 @@
+part of 'deepseek_bloc.dart';
+
 abstract class DeepSeekEvent {}
 
 class GenerateTripEvent extends DeepSeekEvent {
-  final String prompt;
+  final DeepSeekRequestModel requestModel;
 
-  GenerateTripEvent(this.prompt);
+  GenerateTripEvent(this.requestModel);
 }

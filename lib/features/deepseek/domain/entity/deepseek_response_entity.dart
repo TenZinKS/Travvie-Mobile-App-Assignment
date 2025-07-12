@@ -1,5 +1,7 @@
 class DeepSeekResponseEntity {
-  final String content;
+  final String itinerary;
 
-  DeepSeekResponseEntity({required this.content});
+  DeepSeekResponseEntity({
+    required this.itinerary,
+  });
 }

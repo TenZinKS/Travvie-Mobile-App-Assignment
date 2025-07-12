@@ -1,10 +1,13 @@
-part of 'trip_bloc.dart';
+// lib/features/trip/presentation/view_model/trip_event.dart
+
+import 'package:equatable/equatable.dart';
+import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 
 abstract class TripEvent extends Equatable {
   const TripEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class LoadTripsEvent extends TripEvent {}
@@ -12,26 +15,32 @@ class LoadTripsEvent extends TripEvent {}
 class AddTripEvent extends TripEvent {
   final TripEntity trip;
 
-  AddTripEvent(this.trip);
+  const AddTripEvent(this.trip);
+
+  @override
+  List<Object?> get props => [trip];
 }
 
 class DeleteTripEvent extends TripEvent {
   final String tripId;
 
-  DeleteTripEvent(this.tripId);
+  const DeleteTripEvent(this.tripId);
+
+  @override
+  List<Object?> get props => [tripId];
 }
 
 class UpdateTripEvent extends TripEvent {
   final TripEntity trip;
 
-  UpdateTripEvent(this.trip);
+  const UpdateTripEvent(this.trip);
+
+  @override
+  List<Object?> get props => [trip];
 }
 
 class SaveTripAsWishlistEvent extends TripEvent {
   final TripEntity trip;
 
-  const SaveTripAsWishlistEvent(this.trip);
-
-  @override
-  List<Object> get props => [trip];
+  SaveTripAsWishlistEvent(this.trip);
 }

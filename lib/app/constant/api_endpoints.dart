@@ -6,8 +6,9 @@ class ApiEndpoints {
 
   static const String login = "${baseUrl}auth/login";
   static const String register = "${baseUrl}auth/register";
-  static const deepSeekChat = "deepseek-chat";
-
-  static const Duration connectionTimeout = Duration(seconds: 30);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  static const String deepSeekChat = "deepseek-chat";
+  static const String generateTrip = "deepseek-chat/generateTrip";
+  
+  static const Duration connectionTimeout = Duration(seconds: 60);
+  static const Duration receiveTimeout = Duration(seconds: 60);
 }

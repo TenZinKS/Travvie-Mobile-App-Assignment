@@ -1,4 +1,4 @@
-import '../../domain/entity/deepseek_response_entity.dart';
+part of 'deepseek_bloc.dart';
 
 abstract class DeepSeekState {}
 
@@ -6,14 +6,18 @@ class DeepSeekInitial extends DeepSeekState {}
 
 class DeepSeekLoading extends DeepSeekState {}
 
-class DeepSeekLoaded extends DeepSeekState {
-  final DeepSeekResponseEntity response;
-
-  DeepSeekLoaded(this.response);
-}
-
-class DeepSeekError extends DeepSeekState {
+class DeepSeekFailure extends DeepSeekState {
   final String message;
 
-  DeepSeekError(this.message);
+  DeepSeekFailure(this.message);
+}
+
+class DeepSeekSuccess extends DeepSeekState {
+  final DeepSeekRequestModel request;
+  final DeepSeekResponseEntity response;
+
+  DeepSeekSuccess({
+    required this.request,
+    required this.response,
+  });
 }

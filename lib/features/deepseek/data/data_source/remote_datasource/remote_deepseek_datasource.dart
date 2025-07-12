@@ -1,9 +1,10 @@
-import 'package:travvie/app/constant/api_endpoints.dart';
-import 'package:travvie/features/deepseek/domain/entity/deepseek_response_entity.dart';
 import 'package:travvie/core/network/api_service.dart';
+import 'package:travvie/app/constant/api_endpoints.dart';
+import 'package:travvie/features/deepseek/data/model/deepseek_request_model.dart';
+import 'package:travvie/features/deepseek/data/model/deepseek_response_model.dart';
 
 abstract class RemoteDeepSeekDataSource {
-  Future<DeepSeekResponseEntity> generateTrip(String prompt);
+  Future<DeepSeekResponseModel> generateTrip(DeepSeekRequestModel requestModel);
 }
 
 class RemoteDeepSeekDataSourceImpl implements RemoteDeepSeekDataSource {
@@ -12,16 +13,21 @@ class RemoteDeepSeekDataSourceImpl implements RemoteDeepSeekDataSource {
   RemoteDeepSeekDataSourceImpl(this.apiService);
 
   @override
-  Future<DeepSeekResponseEntity> generateTrip(String prompt) async {
+  Future<DeepSeekResponseModel> generateTrip(
+      DeepSeekRequestModel requestModel) async {
+    print("[REMOTE] Sending deepseek request...");
+
     final response = await apiService.dio.post(
       ApiEndpoints.deepSeekChat,
-      data: {'prompt': prompt},
+      data: requestModel.toJson(),
     );
 
+    print("[REMOTE] Deepseek API response: ${response.data}");
+
     if (response.statusCode == 200) {
-      return DeepSeekResponseEntity(content: response.data['message'] ?? '');
+      return DeepSeekResponseModel.fromJson(response.data);
     } else {
-      throw Exception(response.statusMessage ?? 'Failed to generate trip');
+      throw Exception("Failed to generate trip. ${response.data}");
     }
   }
 }

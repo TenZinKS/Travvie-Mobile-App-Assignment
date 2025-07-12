@@ -2,44 +2,56 @@ import 'package:equatable/equatable.dart';
 
 class TripEntity extends Equatable {
   final String id;
-  final String title;
-  final String destination;
-  final DateTime startDate;
-  final DateTime endDate;
+  final String from;
+  final String to;
+  final int numberOfPeople;
+  final DateTime? startDate;
+  final DateTime? endDate;
   final String itinerary;
-  final bool isCompleted;
+  final String status;
 
   const TripEntity({
     required this.id,
-    required this.title,
-    required this.destination,
-    required this.startDate,
-    required this.endDate,
+    required this.from,
+    required this.to,
+    required this.numberOfPeople,
+    this.startDate,
+    this.endDate,
     required this.itinerary,
-    required this.isCompleted,
+    required this.status,
   });
 
   TripEntity copyWith({
     String? id,
-    String? title,
-    String? destination,
+    String? from,
+    String? to,
+    int? numberOfPeople,
     DateTime? startDate,
     DateTime? endDate,
     String? itinerary,
-    bool? isCompleted,
+    String? status,
   }) {
     return TripEntity(
       id: id ?? this.id,
-      title: title ?? this.title,
-      destination: destination ?? this.destination,
+      from: from ?? this.from,
+      to: to ?? this.to,
+      numberOfPeople: numberOfPeople ?? this.numberOfPeople,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       itinerary: itinerary ?? this.itinerary,
-      isCompleted: isCompleted ?? this.isCompleted,
+      status: status ?? this.status,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, title, destination, startDate, endDate, itinerary, isCompleted];
+  List<Object?> get props => [
+        id,
+        from,
+        to,
+        numberOfPeople,
+        startDate,
+        endDate,
+        itinerary,
+        status,
+      ];
 }

@@ -1,3 +1,7 @@
+// lib/features/trip/data/repository/local_repository/trip_repository_impl.dart
+
+import 'package:dartz/dartz.dart';
+import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/trip/data/data_source/local_datasource/local_trip_datasource.dart';
 import 'package:travvie/features/trip/data/model/trip_model.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
@@ -9,23 +13,42 @@ class TripRepositoryImpl implements TripRepository {
   TripRepositoryImpl(this.localDataSource);
 
   @override
-  Future<void> addTrip(TripEntity trip) {
-    return localDataSource.addTrip(TripModel.fromEntity(trip));
+  Future<Either<Failure, void>> addTrip(TripEntity trip) async {
+    try {
+      await localDataSource.addTrip(TripModel.fromEntity(trip));
+      return const Right(null);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<List<TripEntity>> getAllTrips() async {
-    final trips = await localDataSource.getAllTrips();
-    return trips.map((e) => e.toEntity()).toList();
+  Future<Either<Failure, void>> deleteTrip(String tripId) async {
+    try {
+      await localDataSource.deleteTrip(tripId);
+      return const Right(null);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<void> deleteTrip(String id) {
-    return localDataSource.deleteTrip(id);
+  Future<Either<Failure, List<TripEntity>>> getAllTrips() async {
+    try {
+      final trips = await localDataSource.getAllTrips();
+      return Right(trips.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 
   @override
-  Future<void> updateTrip(TripEntity trip) {
-    return localDataSource.updateTrip(TripModel.fromEntity(trip));
+  Future<Either<Failure, void>> updateTrip(TripEntity trip) async {
+    try {
+      await localDataSource.updateTrip(TripModel.fromEntity(trip));
+      return const Right(null);
+    } catch (e) {
+      return Left(LocalDatabaseFailure(message: e.toString()));
+    }
   }
 }

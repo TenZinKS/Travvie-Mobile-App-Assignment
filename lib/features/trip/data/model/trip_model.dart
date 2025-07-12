@@ -1,7 +1,7 @@
+// lib/features/trip/data/model/trip_model.dart
 
 import 'package:hive_flutter/hive_flutter.dart';
-
-import '../../domain/entity/trip_entity.dart';
+import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 
 part 'trip_model.g.dart';
 
@@ -11,54 +11,89 @@ class TripModel extends HiveObject {
   final String id;
 
   @HiveField(1)
-  final String title;
+  final String from;
 
   @HiveField(2)
-  final String destination;
+  final String to;
 
   @HiveField(3)
-  final DateTime startDate;
+  final int numberOfPeople;
 
   @HiveField(4)
-  final DateTime endDate;
+  final DateTime? startDate;
 
   @HiveField(5)
-  final String itinerary;
+  final DateTime? endDate;
 
   @HiveField(6)
-  final bool isCompleted;
+  final String itinerary;
+
+  @HiveField(7)
+  final String status;
 
   TripModel({
     required this.id,
-    required this.title,
-    required this.destination,
-    required this.startDate,
-    required this.endDate,
+    required this.from,
+    required this.to,
+    required this.numberOfPeople,
+    this.startDate,
+    this.endDate,
     required this.itinerary,
-    required this.isCompleted,
+    required this.status,
   });
+
+  factory TripModel.fromJson(Map<String, dynamic> json) {
+    return TripModel(
+      id: json["_id"] as String,
+      from: json["from"] ?? "",
+      to: json["to"] ?? "",
+      numberOfPeople: json["numberOfPeople"] ?? 1,
+      startDate: json["startDate"] != null
+          ? DateTime.tryParse(json["startDate"])
+          : null,
+      endDate: json["endDate"] != null
+          ? DateTime.tryParse(json["endDate"])
+          : null,
+      itinerary: json["itinerary"] ?? "",
+      status: json["status"] ?? "PLANNED",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "from": from,
+      "to": to,
+      "numberOfPeople": numberOfPeople,
+      "startDate": startDate?.toIso8601String(),
+      "endDate": endDate?.toIso8601String(),
+      "itinerary": itinerary,
+      "status": status,
+    };
+  }
 
   TripEntity toEntity() {
     return TripEntity(
       id: id,
-      title: title,
-      destination: destination,
+      from: from,
+      to: to,
+      numberOfPeople: numberOfPeople,
       startDate: startDate,
       endDate: endDate,
       itinerary: itinerary,
-      isCompleted: isCompleted,
+      status: status,
     );
   }
 
   factory TripModel.fromEntity(TripEntity entity) {
     return TripModel(
       id: entity.id,
-      title: entity.title,
-      destination: entity.destination,
+      from: entity.from,
+      to: entity.to,
+      numberOfPeople: entity.numberOfPeople,
       startDate: entity.startDate,
       endDate: entity.endDate,
       itinerary: entity.itinerary,
-      isCompleted: entity.isCompleted,
+      status: entity.status,
     );
   }
 }
