@@ -30,34 +30,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) async {
         emit(AuthFailure(_mapFailureToMessage(failure)));
       },
-      (token) async {
+      (loginResponse) async {
         // Save token in Hive sessionBox
         await sl<HiveService>().save<String>(
           HiveTableConstants.sessionBox,
           'auth_token',
-          token,
+          loginResponse.token,
         );
 
-        // Save current user email
+        // Save current user email in Hive session
         await sl<HiveService>().save<String>(
           HiveTableConstants.sessionBox,
           HiveTableConstants.currentUserEmail,
-          event.email.trim(),
+          loginResponse.user.email,
         );
 
         await sl<HiveService>().openUserBoxes();
         emit(AuthSuccess());
       },
     );
-
   }
 
   Future<void> _onSignup(SignupEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
 
     final newUser = UserEntity(
+      id: '',
       email: event.email.trim(),
       password: event.password.trim(),
+      profilePic: '',
+      isAdmin: false,
     );
 
     final result = await registerUser(newUser);
@@ -67,7 +69,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthFailure(_mapFailureToMessage(failure)));
       },
       (_) async {
-        // ✅ Save the newly registered user as logged in
         await sl<HiveService>().save<String>(
           HiveTableConstants.sessionBox,
           HiveTableConstants.currentUserEmail,

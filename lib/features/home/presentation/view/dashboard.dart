@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/deepseek/presentation/view_model/deepseek_bloc.dart';
 import 'package:travvie/features/home/presentation/bottom_view/home_screen.dart';
-import 'package:travvie/features/home/presentation/bottom_view/ai_chat_screen.dart';
+import 'package:travvie/features/deepseek/presentation/view/deepseek_screen.dart';
 import 'package:travvie/features/profile/presentation/view/profile_screen.dart';
 import 'package:travvie/features/saved/presentation/view/saved_screen.dart';
 import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
@@ -32,7 +33,10 @@ class _DashboardState extends State<Dashboard> {
         create: (_) => sl<TripBloc>()..add(LoadTripsEvent()),
         child: const TripScreen(),
       ),
-      const AiChatScreen(),
+      BlocProvider(
+        create: (_) => sl<DeepSeekBloc>(),
+        child: DeepSeekScreen(),
+      ),
       BlocProvider(
         create: (_) => sl<SavedTripBloc>()..add(LoadSavedTripsEvent()),
         child: const SavedScreen(),

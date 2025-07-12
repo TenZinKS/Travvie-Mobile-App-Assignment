@@ -1,9 +1,10 @@
 import 'package:travvie/core/network/api_service.dart';
 import 'package:travvie/app/constant/api_endpoints.dart';
+import 'package:travvie/features/auth/data/model/login_response_model.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<String> loginUser(String email, String password);
+  Future<LoginResponseModel> loginUser(String email, String password);
   Future<void> registerUser(UserEntity user);
 }
 
@@ -13,7 +14,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._apiService);
 
   @override
-  Future<String> loginUser(String email, String password) async {
+  Future<LoginResponseModel> loginUser(String email, String password) async {
     print('[REMOTE] Calling remote login with $email');
 
     final response = await _apiService.dio.post(
@@ -27,11 +28,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     print('[REMOTE] Login response: ${response.data}');
 
     if (response.statusCode == 200) {
-      final token = response.data['token'];
-      if (token == null) {
-        throw Exception('Token missing in response');
-      }
-      return token;
+      return LoginResponseModel.fromJson(response.data);
     } else {
       final message = response.data['message'] ?? 'Login failed';
       throw Exception(message);

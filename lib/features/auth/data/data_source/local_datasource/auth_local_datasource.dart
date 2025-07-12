@@ -31,8 +31,15 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
       user.email.trim(),
     );
 
+    // Instead of throwing, we update existing user
     if (exists) {
-      throw Exception('User already exists');
+      // Update instead
+      await hive.save<UserModel>(
+        HiveTableConstants.usersBox,
+        user.email.trim(),
+        user,
+      );
+      return;
     }
 
     await hive.save<UserModel>(
@@ -96,7 +103,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     }
 
     if (!isForgotPassword) {
-      // Normal change → check current password
       if (user.password.trim() != currentPassword.trim()) {
         throw Exception("Current password does not match.");
       }

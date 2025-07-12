@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:travvie/core/error/failure.dart';
-import 'package:travvie/features/auth/domain/entity/user_entity.dart';
+import 'package:travvie/features/auth/domain/entity/login_response_entity.dart';
 import 'package:travvie/features/auth/domain/repository/auth_remote_repository.dart';
 
 class RemoteLoginUser {
@@ -8,7 +8,7 @@ class RemoteLoginUser {
 
   RemoteLoginUser(this.repository);
 
-  Future<Either<Failure, String>> call({
+  Future<Either<Failure, LoginResponseEntity>> call({
     required String email,
     required String password,
   }) async {

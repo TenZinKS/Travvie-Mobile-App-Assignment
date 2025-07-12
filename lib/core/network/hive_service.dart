@@ -13,7 +13,7 @@ class HiveService {
   Box<TripModel>? _tripsBox;
   Box<SavedTripModel>? _savedTripsBox;
 
-  /// Initialize Hive (called once in main)
+  /// Initialize Hive (call once in main)
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
@@ -50,37 +50,37 @@ class HiveService {
     print('[Hive] User boxes opened for $email');
   }
 
-  /// Save data
+  /// Save an object into a box
   Future<void> save<T>(String boxName, String key, T value) async {
     final box = _getBox<T>(boxName);
     await box.put(key, value);
   }
 
-  /// Read data
+  /// Read a single object from a box
   Future<T?> read<T>(String boxName, String key) async {
     final box = _getBox<T>(boxName);
     return box.get(key);
   }
 
-  /// Delete key
+  /// Delete a key
   Future<void> delete<T>(String boxName, String key) async {
     final box = _getBox<T>(boxName);
     await box.delete(key);
   }
 
-  /// Check if key exists
+  /// Check if a key exists
   Future<bool> containsKey<T>(String boxName, String key) async {
     final box = _getBox<T>(boxName);
     return box.containsKey(key);
   }
 
-  /// Get all values from box
+  /// Get all values from a box
   Future<List<T>> getAll<T>(String boxName) async {
     final box = _getBox<T>(boxName);
     return box.values.toList().cast<T>();
   }
 
-  /// Internal box getter
+  /// Internal getter
   Box<T> _getBox<T>(String boxName) {
     if (boxName == HiveTableConstants.usersBox && T == UserModel) {
       return _usersBox as Box<T>;
@@ -88,16 +88,16 @@ class HiveService {
       return _sessionBox as Box<T>;
     } else if (boxName.startsWith(HiveTableConstants.tripsBox) && T == TripModel) {
       if (_tripsBox == null) {
-        throw HiveError("Trips box has not been opened yet.");
+        throw HiveError("Trips box not opened yet.");
       }
       return _tripsBox as Box<T>;
     } else if (boxName.startsWith(HiveTableConstants.savedTripsBox) && T == SavedTripModel) {
       if (_savedTripsBox == null) {
-        throw HiveError("Saved trips box has not been opened yet.");
+        throw HiveError("Saved trips box not opened yet.");
       }
       return _savedTripsBox as Box<T>;
     } else {
-      throw HiveError("Unsupported or uninitialized box: $boxName for type $T");
+      throw HiveError("Unsupported box or type: $boxName");
     }
   }
 
@@ -107,7 +107,7 @@ class HiveService {
     await _savedTripsBox?.clear();
   }
 
-  /// Clear global boxes
+  /// Clear global data
   Future<void> clearGlobalData() async {
     await _usersBox.clear();
     await _sessionBox.clear();
@@ -119,26 +119,32 @@ class HiveService {
     await clearGlobalData();
   }
 
-  /// Seed dummy user
+  /// Seed a dummy user
   Future<void> seedDummyUser() async {
     const email = 'demo@travvie.com';
     const password = '123456';
 
     if (!_usersBox.containsKey(email)) {
-      final demoUser = UserModel(email: email, password: password);
+      final demoUser = UserModel(
+        id: '',
+        email: email,
+        password: password,
+        profilePic: '',
+        isAdmin: false,
+      );
       await _usersBox.put(email, demoUser);
-      print('[Hive] Dummy user created');
+      print('[Hive] Dummy user created.');
     } else {
-      print('[Hive] Dummy user already exists');
+      print('[Hive] Dummy user already exists.');
     }
   }
 
-  /// Get current logged in user's email
+  /// Get current user email
   String? getCurrentUserEmail() {
     return _sessionBox.get(HiveTableConstants.currentUserEmail);
   }
 
-  /// Debug print trips
+  /// Debug printing trips
   Future<void> debugPrintTrips() async {
     for (var key in _tripsBox?.keys ?? []) {
       final trip = _tripsBox?.get(key);
@@ -146,7 +152,7 @@ class HiveService {
     }
   }
 
-  /// Debug print saved trips
+  /// Debug printing saved trips
   Future<void> debugPrintSavedTrips() async {
     for (var key in _savedTripsBox?.keys ?? []) {
       final trip = _savedTripsBox?.get(key);
@@ -154,8 +160,10 @@ class HiveService {
     }
   }
 
-  ///USER PROFILE IMAGE
-  
+  /// -------------------------------------------
+  /// USER PROFILE IMAGE METHODS
+  /// -------------------------------------------
+
   /// Open user-specific box for profile info
   Future<Box> openUserBox(String email) async {
     final boxName = "${email}_box";
