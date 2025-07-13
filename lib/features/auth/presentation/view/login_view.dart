@@ -131,12 +131,6 @@ class _LoginViewState extends State<LoginView> {
                     const SizedBox(height: 30),
                     const Text('Or login with', style: TextStyle(color: Colors.black54)),
                     const SizedBox(height: 15),
-                    SignInButton(Buttons.Google, onPressed: () {}),
-                    const SizedBox(width: 10),
-                    SignInButton(Buttons.Facebook, onPressed: () {}),
-                    const SizedBox(width: 10),
-                    SignInButton(Buttons.Apple, onPressed: () {}),
-                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

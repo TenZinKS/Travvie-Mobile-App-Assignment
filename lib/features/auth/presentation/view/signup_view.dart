@@ -68,17 +68,27 @@ class _SignupViewState extends State<SignupView> {
                   children: [
                     Image.asset('assets/logo/logo.png', height: 150),
                     const SizedBox(height: 20),
-                    const Text('Create an Account',
-                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF09A8C8))),
+                    const Text(
+                      'Create an Account',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF09A8C8),
+                      ),
+                    ),
                     const SizedBox(height: 10),
-                    const Text('Start your travel journey with Travvie',
-                        style: TextStyle(fontSize: 16, color: Colors.black54)),
+                    const Text(
+                      'Start your travel journey with Travvie',
+                      style: TextStyle(fontSize: 16, color: Colors.black54),
+                    ),
                     const SizedBox(height: 40),
                     TextField(
                       controller: emailController,
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -87,7 +97,9 @@ class _SignupViewState extends State<SignupView> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -96,7 +108,9 @@ class _SignupViewState extends State<SignupView> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 30),
@@ -104,18 +118,30 @@ class _SignupViewState extends State<SignupView> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
+                        key: const Key('signUpButton'), // ✅ Added key for tests
                         onPressed: () => _signup(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF09A8C8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                         child: state is AuthLoading
                             ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text('Sign Up', style: TextStyle(fontSize: 18, color: Colors.white)),
+                            : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 30),
-                    const Text('Or sign up with', style: TextStyle(color: Colors.black54)),
+                    const Text(
+                      'Or sign up with',
+                      style: TextStyle(color: Colors.black54),
+                    ),
                     const SizedBox(height: 15),
                     SignInButton(Buttons.Google, onPressed: () {}),
                     const SizedBox(width: 10),
@@ -134,8 +160,13 @@ class _SignupViewState extends State<SignupView> {
                               MaterialPageRoute(builder: (_) => const LoginView()),
                             );
                           },
-                          child: const Text('Login',
-                              style: TextStyle(color: Color(0xFF09A8C8), fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Login',
+                            style: TextStyle(
+                              color: Color(0xFF09A8C8),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ),
