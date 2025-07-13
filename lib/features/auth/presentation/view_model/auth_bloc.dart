@@ -83,8 +83,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is LocalDatabaseFailure) return failure.message;
-    if (failure is ApiFailure) return 'API Error: ${failure.statusCode}';
+    if (failure is ApiFailure) return failure.message;
     if (failure is RemoteDatabaseFailure) return 'Remote DB Error';
     return 'Unexpected Error';
   }
+
 }
