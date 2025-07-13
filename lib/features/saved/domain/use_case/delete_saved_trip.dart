@@ -3,11 +3,11 @@ import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/saved/domain/repository/saved_trip_repository.dart';
 
 class DeleteSavedTrip {
-  final SavedTripRepository repository;
+  final SavedTripRepository repo;
 
-  DeleteSavedTrip(this.repository);
+  DeleteSavedTrip(this.repo);
 
-  Future<Either<Failure, void>> call(String id) {
-    return repository.deleteSavedTrip(id);
+  Future<Either<Failure, void>> call(String tripId) {
+    return repo.deleteSavedTrip(tripId);
   }
 }

@@ -21,3 +21,4 @@ class ApiFailure extends Failure {
   final int statusCode;
   const ApiFailure({required this.statusCode, required super.message});
 }
+

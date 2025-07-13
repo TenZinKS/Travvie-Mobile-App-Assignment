@@ -69,7 +69,9 @@ import 'package:travvie/features/dashboard/presentation/view_model/dashboard_blo
 final sl = GetIt.instance;
 
 Future<void> initLocator() async {
+  // ------------------------
   // CORE
+  // ------------------------
   sl.registerLazySingleton<Dio>(() => Dio());
   sl.registerLazySingleton<ApiService>(() => ApiService(sl<Dio>()));
   sl.registerLazySingleton<HiveService>(() => HiveService());
@@ -78,13 +80,13 @@ Future<void> initLocator() async {
     () => NetworkInfoImpl(sl<Connectivity>()),
   );
 
+  // ------------------------
   // DATA SOURCES
+  // ------------------------
+
+  // Local Data Sources
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sl<HiveService>()),
-  );
-
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(sl<ApiService>()),
   );
 
   sl.registerLazySingleton<LocalTripDataSource>(
@@ -95,11 +97,19 @@ Future<void> initLocator() async {
     () => LocalSavedTripDataSourceImpl(sl<HiveService>()),
   );
 
+  // Remote Data Sources
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(sl<ApiService>()),
+  );
+
   sl.registerLazySingleton<RemoteDeepSeekDataSource>(
     () => RemoteDeepSeekDataSourceImpl(sl<ApiService>()),
   );
 
+  // ------------------------
   // REPOSITORIES
+  // ------------------------
+
   sl.registerLazySingleton<AuthLocalRepository>(
     () => AuthLocalRepositoryImpl(sl<AuthLocalDataSource>()),
   );
@@ -126,28 +136,38 @@ Future<void> initLocator() async {
     ),
   );
 
+  // ------------------------
   // USE CASES
+  // ------------------------
+
+  // Auth - Remote
   sl.registerLazySingleton(() => RemoteLoginUser(sl<AuthRemoteRepository>()));
   sl.registerLazySingleton(() => RemoteRegisterUser(sl<AuthRemoteRepository>()));
 
+  // Auth - Local
   sl.registerLazySingleton(() => LoginUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ChangePassword(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ForgotPassword(sl<AuthLocalRepository>()));
 
+  // Trips
   sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
   sl.registerLazySingleton(() => GetAllTrips(sl<TripRepository>()));
   sl.registerLazySingleton(() => DeleteTrip(sl<TripRepository>()));
   sl.registerLazySingleton(() => UpdateTrip(sl<TripRepository>()));
 
+  // Saved Trips
   sl.registerLazySingleton(() => AddSavedTrip(sl<SavedTripRepository>()));
   sl.registerLazySingleton(() => GetAllSavedTrips(sl<SavedTripRepository>()));
   sl.registerLazySingleton(() => DeleteSavedTrip(sl<SavedTripRepository>()));
 
+  // DeepSeek
   sl.registerLazySingleton(() => GenerateTrip(sl<DeepSeekRepository>()));
 
+  // ------------------------
   // BLOCS & CUBITS
+  // ------------------------
   sl.registerFactory(() => ProfileCubit(
         sl<GetUserEmail>(),
         sl<ChangePassword>(),
@@ -177,6 +197,5 @@ Future<void> initLocator() async {
         sl<GenerateTrip>(),
       ));
 
-  // REGISTER DASHBOARD BLOC
   sl.registerFactory(() => DashboardBloc());
 }

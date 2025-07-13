@@ -12,6 +12,6 @@ class ApiEndpoints {
   static const String deepSeekChat = "$baseUrl/deepseek-chat";
   static const String generateTrip = "$baseUrl/deepseek-chat/generateTrip";
 
-  static const Duration connectionTimeout = Duration(seconds: 60);
-  static const Duration receiveTimeout = Duration(seconds: 60);
+  static const Duration connectionTimeout = Duration(seconds: 120);
+  static const Duration receiveTimeout = Duration(seconds: 120);
 }

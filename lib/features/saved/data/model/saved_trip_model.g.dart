@@ -18,12 +18,12 @@ class SavedTripModelAdapter extends TypeAdapter<SavedTripModel> {
     };
     return SavedTripModel(
       id: fields[0] as String,
-      title: fields[1] as String,
-      destination: fields[2] as String,
-      startDate: fields[3] as DateTime,
-      endDate: fields[4] as DateTime,
-      itinerary: fields[5] as String,
-      isCompleted: fields[6] as bool,
+      from: fields[1] as String,
+      to: fields[2] as String,
+      numberOfPeople: fields[3] as int,
+      startDate: fields[4] as DateTime,
+      endDate: fields[5] as DateTime,
+      itinerary: fields[6] as String,
     );
   }
 
@@ -34,17 +34,17 @@ class SavedTripModelAdapter extends TypeAdapter<SavedTripModel> {
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.title)
+      ..write(obj.from)
       ..writeByte(2)
-      ..write(obj.destination)
+      ..write(obj.to)
       ..writeByte(3)
-      ..write(obj.startDate)
+      ..write(obj.numberOfPeople)
       ..writeByte(4)
-      ..write(obj.endDate)
+      ..write(obj.startDate)
       ..writeByte(5)
-      ..write(obj.itinerary)
+      ..write(obj.endDate)
       ..writeByte(6)
-      ..write(obj.isCompleted);
+      ..write(obj.itinerary);
   }
 
   @override

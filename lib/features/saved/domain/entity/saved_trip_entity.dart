@@ -2,31 +2,23 @@ import 'package:equatable/equatable.dart';
 
 class SavedTripEntity extends Equatable {
   final String id;
-  final String title;
-  final String destination;
+  final String from;
+  final String to;
+  final int numberOfPeople;
   final DateTime startDate;
   final DateTime endDate;
   final String itinerary;
-  final bool isCompleted;
 
   const SavedTripEntity({
     required this.id,
-    required this.title,
-    required this.destination,
+    required this.from,
+    required this.to,
+    required this.numberOfPeople,
     required this.startDate,
     required this.endDate,
     required this.itinerary,
-    required this.isCompleted,
   });
 
   @override
-  List<Object?> get props => [
-        id,
-        title,
-        destination,
-        startDate,
-        endDate,
-        itinerary,
-        isCompleted,
-      ];
+  List<Object?> get props => [id, from, to, numberOfPeople, startDate, endDate, itinerary];
 }

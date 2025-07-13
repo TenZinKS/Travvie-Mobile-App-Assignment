@@ -155,7 +155,7 @@ class HiveService {
   Future<void> debugPrintSavedTrips() async {
     for (var key in _savedTripsBox?.keys ?? []) {
       final trip = _savedTripsBox?.get(key);
-      print('[SavedTrip] $key → ${trip?.title} | ${trip?.destination}');
+      print('[SavedTrip] $key → ${trip?.id} | ${trip?.to}');
     }
   }
 

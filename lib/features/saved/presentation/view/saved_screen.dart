@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
+import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
 
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});
@@ -67,9 +68,10 @@ class SavedScreen extends StatelessWidget {
               ],
             ),
             child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               title: Text(
-                trip.title,
+                trip.id,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -79,7 +81,7 @@ class SavedScreen extends StatelessWidget {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  "${trip.destination} | ${_formatDate(trip.startDate)} - ${_formatDate(trip.endDate)}",
+                  "${trip.to} | ${_formatDate(trip.startDate)} - ${_formatDate(trip.endDate)}",
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
@@ -113,41 +115,43 @@ class SavedScreen extends StatelessWidget {
     return const SizedBox();
   }
 
-  void _showTripDetailsDialog(BuildContext context, trip) {
+  void _showTripDetailsDialog(BuildContext context, SavedTripEntity trip) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
-          trip.title,
+          trip.id,
           style: const TextStyle(
             color: Color(0xFF09A8C8),
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _infoRow("Destination", trip.destination),
-            _infoRow("Start Date", _formatDate(trip.startDate)),
-            _infoRow("End Date", _formatDate(trip.endDate)),
-            const SizedBox(height: 12),
-            const Text(
-              "Itinerary",
-              style: TextStyle(
-                color: Color(0xFF09A8C8),
-                fontWeight: FontWeight.bold,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _infoRow("Destination", trip.to),
+              _infoRow("Start Date", _formatDate(trip.startDate)),
+              _infoRow("End Date", _formatDate(trip.endDate)),
+              const SizedBox(height: 12),
+              const Text(
+                "Itinerary",
+                style: TextStyle(
+                  color: Color(0xFF09A8C8),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              trip.itinerary,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
+              const SizedBox(height: 4),
+              Text(
+                trip.itinerary,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(

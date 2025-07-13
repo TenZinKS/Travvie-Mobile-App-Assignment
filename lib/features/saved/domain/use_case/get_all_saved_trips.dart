@@ -4,11 +4,11 @@ import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
 import 'package:travvie/features/saved/domain/repository/saved_trip_repository.dart';
 
 class GetAllSavedTrips {
-  final SavedTripRepository repository;
+  final SavedTripRepository repo;
 
-  GetAllSavedTrips(this.repository);
+  GetAllSavedTrips(this.repo);
 
   Future<Either<Failure, List<SavedTripEntity>>> call() {
-    return repository.getAllSavedTrips();
+    return repo.getAllSavedTrips();
   }
 }
