@@ -3,7 +3,6 @@ import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/core/network/network_info.dart';
 import 'package:travvie/features/auth/data/data_source/local_datasource/auth_local_datasource.dart';
 import 'package:travvie/features/auth/data/data_source/remote_datasource/auth_remote_datasource.dart';
-import 'package:travvie/features/auth/data/model/login_response_model.dart';
 import 'package:travvie/features/auth/data/model/user_model.dart';
 import 'package:travvie/features/auth/domain/entity/login_response_entity.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';

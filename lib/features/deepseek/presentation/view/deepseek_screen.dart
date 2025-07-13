@@ -26,7 +26,7 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
   List<Map<String, String>> chatMessages = [];
   DeepSeekRequestModel? lastRequest;
 
-  String _tripStatus = "UPCOMING"; // new field
+  String _tripStatus = "UPCOMING";
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,8 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
       ],
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("DeepSeek AI Trip Planner"),
+          title: const Text("Travvie AI Trip Planner"),
+          centerTitle: true,
           backgroundColor: const Color(0xFF09A8C8),
           foregroundColor: Colors.white,
         ),
@@ -79,57 +80,39 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
                       setState(() => endDate = picked);
                     }),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF09A8C8),
-                        ),
-                        onPressed: state is DeepSeekLoading
-                            ? null
-                            : () => _submitInitial(context),
-                        child: state is DeepSeekLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                "Generate Trip",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                      ),
+                    _buildPrimaryButton(
+                      text: "Generate Trip",
+                      onPressed: state is DeepSeekLoading
+                          ? null
+                          : () => _submitInitial(context),
+                      loading: state is DeepSeekLoading,
                     ),
                   ] else ...[
                     _buildChatHistory(chatMessages),
                     const SizedBox(height: 20),
                     _buildTextField("Refine your trip...", refineController),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF09A8C8),
-                        ),
-                        onPressed: state is DeepSeekLoading
-                            ? null
-                            : () => _sendRefinement(context),
-                        child: state is DeepSeekLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                "Send",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                      ),
+                    _buildPrimaryButton(
+                      text: "Send",
+                      onPressed: state is DeepSeekLoading
+                          ? null
+                          : () => _sendRefinement(context),
+                      loading: state is DeepSeekLoading,
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
                     const Text(
                       "Save Trip As:",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Color(0xFF09A8C8),
+                      ),
                     ),
                     RadioListTile<String>(
                       title: const Text("Upcoming Trip"),
                       value: "UPCOMING",
                       groupValue: _tripStatus,
+                      activeColor: const Color(0xFF09A8C8),
                       onChanged: (val) {
                         setState(() => _tripStatus = val ?? "UPCOMING");
                       },
@@ -138,27 +121,79 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
                       title: const Text("Planned Trip"),
                       value: "PLANNED",
                       groupValue: _tripStatus,
+                      activeColor: const Color(0xFF09A8C8),
                       onChanged: (val) {
                         setState(() => _tripStatus = val ?? "UPCOMING");
                       },
                     ),
                     const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        _saveTrip(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        minimumSize: const Size.fromHeight(48),
-                      ),
-                      icon: const Icon(Icons.save),
-                      label: const Text("Save Trip"),
+                    _buildSecondaryButton(
+                      text: "Save Trip",
+                      icon: Icons.save,
+                      onPressed: () => _saveTrip(context),
                     ),
                   ],
                 ],
               ),
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPrimaryButton({
+    required String text,
+    required VoidCallback? onPressed,
+    bool loading = false,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF09A8C8),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: onPressed,
+        child: loading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : Text(
+                text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildSecondaryButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        onPressed: onPressed,
+        icon: Icon(icon, color: Colors.white),
+        label: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -174,7 +209,15 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        filled: true,
+        fillColor: Colors.grey[50],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Color(0xFF09A8C8), width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
   }
@@ -199,8 +242,9 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          border: Border.all(color: const Color(0xFF09A8C8)),
           borderRadius: BorderRadius.circular(8),
+          color: Colors.grey[50],
         ),
         width: double.infinity,
         child: Text(
@@ -220,10 +264,12 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
         return Align(
           alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
+            margin: const EdgeInsets.symmetric(vertical: 6),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: isUser ? const Color(0xFF09A8C8) : Colors.grey.shade200,
+              color: isUser
+                  ? const Color(0xFF09A8C8)
+                  : const Color(0xFFF1F1F1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -250,13 +296,28 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
       return;
     }
 
+    final initialPrompt = """
+Please generate a trip itinerary:
+- From: ${fromController.text.trim()}
+- To: ${toController.text.trim()}
+- Number of people: ${peopleController.text.trim()}
+- Start date: ${DateFormat.yMMMd().format(startDate!)}
+- End date: ${DateFormat.yMMMd().format(endDate!)}
+Provide a day-wise itinerary.
+""";
+
     final requestModel = DeepSeekRequestModel(
       from: fromController.text.trim(),
       to: toController.text.trim(),
       numberOfPeople: int.tryParse(peopleController.text.trim()) ?? 1,
-      startDate: startDate!,
-      endDate: endDate!,
-      previousMessages: [],
+      startDate: startDate,
+      endDate: endDate,
+      previousMessages: [
+        {
+          "role": "user",
+          "content": initialPrompt,
+        }
+      ],
     );
 
     lastRequest = requestModel;
@@ -264,8 +325,7 @@ class _DeepSeekScreenState extends State<DeepSeekScreen> {
     setState(() {
       chatMessages.add({
         "role": "user",
-        "content":
-            "Please generate a trip itinerary:\n- From: ${requestModel.from}\n- To: ${requestModel.to}\n- Number of people: ${requestModel.numberOfPeople}\n- Start date: ${DateFormat.yMMMd().format(requestModel.startDate!)}\n- End date: ${DateFormat.yMMMd().format(requestModel.endDate!)}\n\nProvide a day-wise itinerary.",
+        "content": initialPrompt,
       });
     });
 

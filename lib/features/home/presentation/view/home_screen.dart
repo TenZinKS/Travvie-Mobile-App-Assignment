@@ -24,7 +24,6 @@ class HomeScreen extends StatelessWidget {
           if (state is DashboardLoaded) {
             final dashboard = state.dashboard;
 
-            // For random tips/facts
             final tips = [
               "Always carry a power bank when exploring new cities.",
               "Learn a few local phrases to help navigate abroad.",
@@ -46,81 +45,96 @@ class HomeScreen extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 title: const Text("Travvie Dashboard"),
+                foregroundColor: Colors.white,
                 centerTitle: true,
                 backgroundColor: const Color(0xFF09A8C8),
               ),
               body: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Welcome back 👋",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      "Here’s a snapshot of your travel journey!",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 24),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Welcome back 👋",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "Here’s a snapshot of your travel journey!",
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 24),
 
-                    // Dashboard Stats Cards
-                    GridView.count(
-                      shrinkWrap: true,
-                      crossAxisCount: 2,
-                      physics: const NeverScrollableScrollPhysics(),
-                      mainAxisSpacing: 16,
-                      crossAxisSpacing: 16,
-                      childAspectRatio: 1.2,
-                      children: [
-                        _buildStatCard(Icons.check_circle, "Trips Completed",
-                            "${dashboard.completedTrips}", Colors.blueAccent),
-                        _buildStatCard(Icons.cancel, "Trips Cancelled",
-                            "${dashboard.cancelledTrips}", Colors.redAccent),
-                        _buildStatCard(Icons.access_time, "Upcoming Trips",
-                            "${dashboard.upcomingTrips}", Colors.orangeAccent),
-                        _buildStatCard(Icons.favorite, "Wishlists",
-                            "${dashboard.wishlistCount}", Colors.pinkAccent),
-                      ],
-                    ),
+                      // ✅ Constrained Grid
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                          return GridView.count(
+                            crossAxisCount: crossAxisCount,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.0,
+                            children: [
+                              _buildStatCard(
+                                  Icons.check_circle,
+                                  "Trips Completed",
+                                  "${dashboard.completedTrips}",
+                                  Colors.blueAccent),
+                              _buildStatCard(
+                                  Icons.cancel,
+                                  "Trips Cancelled",
+                                  "${dashboard.cancelledTrips}",
+                                  Colors.redAccent),
+                              _buildStatCard(
+                                  Icons.access_time,
+                                  "Upcoming Trips",
+                                  "${dashboard.upcomingTrips}",
+                                  Colors.orangeAccent),
+                              _buildStatCard(
+                                  Icons.favorite,
+                                  "Wishlists",
+                                  "${dashboard.wishlistCount}",
+                                  Colors.pinkAccent),
+                            ],
+                          );
+                        },
+                      ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                    // Completion Rate Card
-                    _buildInfoCard(
-                      title: "🎯 Completion Rate",
-                      message:
-                          "${dashboard.completionRate.toStringAsFixed(1)}% · Rank: ${dashboard.travellerRank}",
-                      backgroundColor: Colors.lightBlue[50],
-                      icon: Icons.emoji_events,
-                      iconColor: Colors.blue,
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    // Travel Tip of the Day
-                    _buildInfoCard(
-                      title: "🌍 Travel Tip of the Day",
-                      message: travelTip,
-                      backgroundColor: Colors.teal[50],
-                      icon: Icons.lightbulb_outline,
-                      iconColor: Colors.teal,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Fun Fact
-                    _buildInfoCard(
-                      title: "🗺️ Did You Know?",
-                      message: funFact,
-                      backgroundColor: Colors.indigo[50],
-                      icon: Icons.explore,
-                      iconColor: Colors.indigo,
-                    ),
-
-                    const SizedBox(height: 20),
-                  ],
+                      _buildInfoCard(
+                        title: "🎯 Completion Rate",
+                        message:
+                            "${dashboard.completionRate.toStringAsFixed(1)}% · Rank: ${dashboard.travellerRank}",
+                        backgroundColor: Colors.lightBlue[50],
+                        icon: Icons.emoji_events,
+                        iconColor: Colors.blue,
+                      ),
+                      const SizedBox(height: 24),
+                      _buildInfoCard(
+                        title: "🌍 Travel Tip of the Day",
+                        message: travelTip,
+                        backgroundColor: Colors.teal[50],
+                        icon: Icons.lightbulb_outline,
+                        iconColor: Colors.teal,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildInfoCard(
+                        title: "🗺️ Did You Know?",
+                        message: funFact,
+                        backgroundColor: Colors.indigo[50],
+                        icon: Icons.explore,
+                        iconColor: Colors.indigo,
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -144,21 +158,26 @@ class HomeScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 36, color: color),
-          const SizedBox(height: 10),
+          Icon(icon, size: 28, color: color),
+          const SizedBox(height: 6),
           Text(
             value,
             style: TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: color),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
           const SizedBox(height: 4),
-          Text(label,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
-              textAlign: TextAlign.center),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: Colors.black54),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -187,15 +206,22 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: iconColor)),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: iconColor,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(message,
-                    style:
-                        const TextStyle(fontSize: 14, color: Colors.black87)),
+                Text(
+                  message,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black87,
+                  ),
+                ),
               ],
             ),
           ),

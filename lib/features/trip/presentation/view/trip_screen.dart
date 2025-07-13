@@ -13,6 +13,8 @@ class TripScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Trips"),
+        foregroundColor: Colors.white,
+        centerTitle: true,
         backgroundColor: const Color(0xFF09A8C8),
       ),
       body: BlocBuilder<TripBloc, TripState>(

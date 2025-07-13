@@ -42,5 +42,5 @@ class UpdateTripEvent extends TripEvent {
 class SaveTripAsWishlistEvent extends TripEvent {
   final TripEntity trip;
 
-  SaveTripAsWishlistEvent(this.trip);
+  const SaveTripAsWishlistEvent(this.trip);
 }
