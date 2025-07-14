@@ -1,14 +1,17 @@
+// lib/features/trip/presentation/view/trip_details_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_event.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_state.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 import 'package:travvie/features/trip/presentation/view/widgets/trip_dialog.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_event.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_state.dart';
-import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
-import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
-
-import 'package:travvie/app/service_locator/service_locator.dart';
 
 class TripDetailsScreen extends StatelessWidget {
   final TripEntity trip;
@@ -22,15 +25,37 @@ class TripDetailsScreen extends StatelessWidget {
         BlocProvider.value(value: BlocProvider.of<TripBloc>(context)),
         BlocProvider(create: (_) => sl<SavedTripBloc>()),
       ],
-      child: BlocListener<TripBloc, TripState>(
-        listener: (context, state) {
-          if (state is TripLoaded) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Trip updated successfully!")),
-            );
-          }
-        },
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<TripBloc, TripState>(
+            listener: (context, state) {
+              if (state is TripLoaded) {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Trip updated successfully!")),
+                );
+              }
+            },
+          ),
+          BlocListener<SavedTripBloc, SavedTripState>(
+            listener: (context, state) {
+              if (state is SavedTripLoaded) {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Trip saved as wishlist!")),
+                );
+              } else if (state is SavedTripError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("Error: ${state.message}")),
+                );
+              }
+            },
+          ),
+        ],
         child: Scaffold(
           appBar: AppBar(
             title: Text("${trip.from} → ${trip.to}"),
@@ -189,28 +214,30 @@ class TripDetailsScreen extends StatelessWidget {
   void _confirmSaveWishlist(BuildContext context, TripEntity trip) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Save as Wishlist"),
-        content: const Text(
-          "This trip will be moved to your Saved list and removed from Trips. Continue?",
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Cancel"),
-            onPressed: () => Navigator.pop(context),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Save as Wishlist"),
+          content: const Text(
+            "This trip will be moved to your Saved list and removed from Trips. Continue?",
           ),
-          ElevatedButton(
-            child: const Text("Save"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orangeAccent,
+          actions: [
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () => Navigator.pop(dialogContext),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-              _saveAsWishlist(context, trip);
-            },
-          )
-        ],
-      ),
+            ElevatedButton(
+              child: const Text("Save"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _saveAsWishlist(context, trip);
+              },
+            )
+          ],
+        );
+      },
     );
   }
 
@@ -229,16 +256,13 @@ class TripDetailsScreen extends StatelessWidget {
       AddSavedTripEvent(savedTrip),
     );
 
-    // Remove from Trips immediately
     BlocProvider.of<TripBloc>(context).add(
       DeleteTripEvent(trip.id),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Trip saved as wishlist!")),
+    BlocProvider.of<TripBloc>(context).add(
+      LoadTripsEvent(),
     );
-
-    Navigator.pop(context);
   }
 
   String _statusLabel(String status) {

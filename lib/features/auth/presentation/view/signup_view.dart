@@ -143,12 +143,6 @@ class _SignupViewState extends State<SignupView> {
                       style: TextStyle(color: Colors.black54),
                     ),
                     const SizedBox(height: 15),
-                    SignInButton(Buttons.Google, onPressed: () {}),
-                    const SizedBox(width: 10),
-                    SignInButton(Buttons.Facebook, onPressed: () {}),
-                    const SizedBox(width: 10),
-                    SignInButton(Buttons.Apple, onPressed: () {}),
-                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

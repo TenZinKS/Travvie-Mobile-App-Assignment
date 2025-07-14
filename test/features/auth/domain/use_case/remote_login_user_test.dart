@@ -1,14 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/auth/domain/entity/login_response_entity.dart';
 import 'package:travvie/features/auth/domain/entity/user_entity.dart';
 import 'package:travvie/features/auth/domain/use_case/remote_login_user.dart';
-
-import 'package:travvie/features/auth/domain/repository/auth_remote_repository.dart';
-
 import '../../../../helpers/token.mock.dart';
 import '../../../../mocks/repository.mock.dart';
 

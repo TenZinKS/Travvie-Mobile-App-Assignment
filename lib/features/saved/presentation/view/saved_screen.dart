@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
 import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_event.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_state.dart';
 
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});
@@ -71,7 +73,7 @@ class SavedScreen extends StatelessWidget {
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               title: Text(
-                trip.id,
+                trip.from,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -81,7 +83,7 @@ class SavedScreen extends StatelessWidget {
               subtitle: Padding(
                 padding: const EdgeInsets.only(top: 4.0),
                 child: Text(
-                  "${trip.to} | ${_formatDate(trip.startDate)} - ${_formatDate(trip.endDate)}",
+                  "${_formatDate(trip.startDate)} - ${_formatDate(trip.endDate)}",
                   style: const TextStyle(
                     color: Colors.black87,
                     fontSize: 15,
@@ -94,10 +96,21 @@ class SavedScreen extends StatelessWidget {
                   BlocProvider.of<SavedTripBloc>(context).add(
                     DeleteSavedTripEvent(trip.id),
                   );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Trip deleted successfully."),
+                    ),
+                  );
                 },
               ),
-              onTap: () {
-                _showTripDetailsDialog(context, trip);
+              onTap: () async {
+                await _showTripDetailsDialog(context, trip);
+
+                // Reload trips after dialog closes in case changes happen
+                BlocProvider.of<SavedTripBloc>(context).add(
+                  LoadSavedTripsEvent(),
+                );
               },
             ),
           );
@@ -115,12 +128,13 @@ class SavedScreen extends StatelessWidget {
     return const SizedBox();
   }
 
-  void _showTripDetailsDialog(BuildContext context, SavedTripEntity trip) {
-    showDialog(
+  Future<void> _showTripDetailsDialog(
+      BuildContext context, SavedTripEntity trip) {
+    return showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
-          trip.id,
+          trip.from,
           style: const TextStyle(
             color: Color(0xFF09A8C8),
             fontWeight: FontWeight.bold,
@@ -131,7 +145,7 @@ class SavedScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _infoRow("Destination", trip.to),
+              _infoRow("From", trip.from),
               _infoRow("Start Date", _formatDate(trip.startDate)),
               _infoRow("End Date", _formatDate(trip.endDate)),
               const SizedBox(height: 12),
@@ -144,7 +158,9 @@ class SavedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                trip.itinerary,
+                trip.itinerary.isNotEmpty
+                    ? trip.itinerary
+                    : "No itinerary provided.",
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black87,
@@ -193,7 +209,8 @@ class SavedScreen extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime? date) {
+    if (date == null) return "-";
     return "${date.day}/${date.month}/${date.year}";
   }
 }

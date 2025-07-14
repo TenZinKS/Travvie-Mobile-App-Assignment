@@ -128,8 +128,6 @@ class _LoginViewState extends State<LoginView> {
                             : const Text('Login', style: TextStyle(fontSize: 18, color: Colors.white)),
                       ),
                     ),
-                    const SizedBox(height: 30),
-                    const Text('Or login with', style: TextStyle(color: Colors.black54)),
                     const SizedBox(height: 15),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

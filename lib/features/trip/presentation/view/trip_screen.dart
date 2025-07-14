@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:travvie/app/service_locator/service_locator.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
+import 'package:travvie/features/trip/presentation/view_model/trip_event.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_state.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 import 'package:travvie/features/trip/presentation/view/trip_details_screen.dart';
@@ -59,12 +62,20 @@ class TripScreen extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => BlocProvider.value(
-                    value: context.read<TripBloc>(),
+                  builder: (_) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider.value(
+                        value: context.read<TripBloc>(),
+                      ),
+                      BlocProvider(
+                        create: (_) => sl<SavedTripBloc>(),
+                      ),
+                    ],
                     child: TripDetailsScreen(trip: trip),
                   ),
                 ),
               );
+              context.read<TripBloc>().add(LoadTripsEvent());
             },
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             title: Text(

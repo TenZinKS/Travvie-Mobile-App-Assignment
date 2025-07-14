@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mocktail/mocktail.dart';
-
-import 'package:travvie/features/auth/presentation/view/signup_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_state.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_event.dart';

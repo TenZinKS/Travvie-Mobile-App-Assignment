@@ -6,6 +6,7 @@ import 'package:travvie/features/deepseek/presentation/view/deepseek_screen.dart
 import 'package:travvie/features/profile/presentation/view/profile_screen.dart';
 import 'package:travvie/features/saved/presentation/view/saved_screen.dart';
 import 'package:travvie/features/saved/presentation/view_model/saved_trip_bloc.dart';
+import 'package:travvie/features/saved/presentation/view_model/saved_trip_event.dart';
 import 'package:travvie/features/trip/presentation/view/trip_screen.dart';
 import 'package:travvie/features/trip/presentation/view_model/trip_bloc.dart';
 import 'package:travvie/features/deepseek/presentation/view_model/deepseek_bloc.dart';
