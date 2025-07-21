@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/core/network/hive_service.dart';
@@ -7,7 +8,8 @@ import 'package:travvie/features/auth/domain/entity/user_entity.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 import 'package:travvie/features/auth/domain/repository/auth_remote_repository.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
-import 'package:travvie/features/saved/presentation/view/change_password_screen.dart';
+import 'package:travvie/features/profile/presentation/view/change_password_screen.dart';
+import 'package:travvie/features/profile/presentation/view_model/profile_cubit.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -103,88 +105,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF09A8C8),
-        title: const Text('Profile', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          const SizedBox(height: 30),
-          GestureDetector(
-            onTap: _pickImage,
-            child: CircleAvatar(
-              radius: 45,
-              backgroundColor: const Color(0xFF09A8C8),
-              backgroundImage:
-                  _imagePath != null ? FileImage(File(_imagePath!)) : null,
-              child: _imagePath == null
-                  ? const Icon(Icons.person, size: 50, color: Colors.white)
-                  : null,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            userEmail ?? 'Unknown User',
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 30),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                _profileButton(
-                  icon: Icons.edit,
-                  label: "Edit Profile",
-                  onTap: () {
-                    // TODO: Navigate to edit profile screen
-                  },
+    return BlocProvider.value(
+      value: sl<ProfileCubit>(),
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF09A8C8),
+          title: const Text('Profile', style: TextStyle(color: Colors.white)),
+          centerTitle: true,
+        ),
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 45,
+                  backgroundColor: const Color(0xFF09A8C8),
+                  backgroundImage:
+                      _imagePath != null ? FileImage(File(_imagePath!)) : null,
+                  child: _imagePath == null
+                      ? const Icon(Icons.person, size: 50, color: Colors.white)
+                      : null,
                 ),
-                _profileButton(
-                  icon: Icons.lock,
-                  label: "Change Password",
-                  onTap: () {
-                    if (userEmail == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("No user logged in.")),
-                      );
-                      return;
-                    }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChangePasswordScreen(userEmail: userEmail!),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                userEmail ?? 'Unknown User',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    _profileButton(
+                      icon: Icons.edit,
+                      label: "Edit Profile",
+                      onTap: () {
+                        // TODO: Navigate to edit profile screen
+                      },
+                    ),
+                    _profileButton(
+                      icon: Icons.lock,
+                      label: "Change Password",
+                      onTap: () {
+                        if (userEmail == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("No user logged in.")),
+                          );
+                          return;
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider.value(
+                              value: sl<ProfileCubit>(),
+                              child: ChangePasswordScreen(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    _profileButton(
+                      icon: Icons.delete,
+                      label: "Delete Account",
+                      onTap: _deleteAccount,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await sl<AuthLocalRepository>().logout();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LoginView()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                    );
-                  },
+                      child: const Text("Logout", style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
                 ),
-                _profileButton(
-                  icon: Icons.delete,
-                  label: "Delete Account",
-                  onTap: _deleteAccount,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    await sl<AuthLocalRepository>().logout();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginView()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                  child: const Text("Logout", style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

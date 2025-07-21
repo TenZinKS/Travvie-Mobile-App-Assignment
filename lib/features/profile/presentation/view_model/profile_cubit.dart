@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
 import 'package:travvie/features/profile/presentation/view_model/profile_state.dart';
 import 'package:travvie/features/profile/domain/use_case/get_user_email.dart';
 import 'package:travvie/features/auth/domain/use_case/change_password.dart';
@@ -12,12 +13,16 @@ class ProfileCubit extends Cubit<ProfileState> {
   final ChangePassword changePassword;
   final DeleteUser deleteUser;
   final HiveService hive;
+  final AuthLocalRepository localRepo;
+
 
   ProfileCubit({
     required this.getUserEmail,
     required this.changePassword,
     required this.deleteUser,
     required this.hive,
+    required this.localRepo,
+
   }) : super(ProfileInitial());
 
   void loadUserEmail() async {
@@ -35,23 +40,30 @@ class ProfileCubit extends Cubit<ProfileState> {
   }
 
   Future<void> changeUserPassword({
-    required String email,
-    required String currentPassword,
-    required String newPassword,
-  }) async {
-    emit(ProfileLoading());
+  required String email,
+  required String currentPassword,
+  required String newPassword,
+}) async {
+  emit(ProfileLoading());
 
-    final result = await changePassword(
-      email: email,
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    );
-
-    result.fold(
-      (failure) => emit(ProfileError(message: failure.message)),
-      (_) => emit(ProfilePasswordChanged()),
-    );
+  final user = localRepo.getCurrentUser();
+  if (user == null) {
+    emit(ProfileError(message: "User not found"));
+    return;
   }
+
+  final result = await changePassword(
+    userId: user.id,
+    currentPassword: currentPassword,
+    newPassword: newPassword,
+  );
+
+  result.fold(
+    (failure) => emit(ProfileError(message: failure.message)),
+    (_) => emit(ProfilePasswordChanged()),
+  );
+}
+
 
   Future<void> deleteAccount({required String id, required String email}) async {
     emit(ProfileLoading());

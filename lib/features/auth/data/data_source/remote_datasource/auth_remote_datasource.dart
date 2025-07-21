@@ -9,6 +9,13 @@ abstract class AuthRemoteDataSource {
 
   /// ✅ NEW: Delete user from API using user ID
   Future<void> deleteUser(String userId);
+
+  Future<void> changePassword({
+  required String id,
+  required String currentPassword,
+  required String newPassword,
+});
+
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -75,4 +82,29 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     print('[REMOTE] User deleted from remote API.');
   }
+
+  @override
+  @override
+Future<void> changePassword({
+  required String id,
+  required String currentPassword,
+  required String newPassword,
+}) async {
+  final response = await _apiService.dio.put(
+    '${ApiEndpoints.baseUrl}/auth/change-password/$id',
+    data: {
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    },
+  );
+
+  if (response.statusCode != 200) {
+    final msg = response.data['msg'] ?? 'Change password failed';
+    throw Exception(msg);
+  }
+
+  print("[REMOTE] Password changed via API.");
+}
+
+
 }

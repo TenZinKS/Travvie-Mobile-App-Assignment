@@ -144,13 +144,16 @@ Future<void> initLocator() async {
   // Auth - Remote
   sl.registerLazySingleton(() => RemoteLoginUser(sl<AuthRemoteRepository>()));
   sl.registerLazySingleton(() => RemoteRegisterUser(sl<AuthRemoteRepository>()));
+  sl.registerLazySingleton(() => ChangePassword(sl<AuthRemoteRepository>()));
 
   // Auth - Local
   sl.registerLazySingleton(() => LoginUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
-  sl.registerLazySingleton(() => ChangePassword(sl<AuthLocalRepository>()));
   sl.registerLazySingleton(() => ForgotPassword(sl<AuthLocalRepository>()));
+
+  // ✅ Profile - Delete User
+  sl.registerLazySingleton(() => DeleteUser(sl<AuthRemoteRepository>()));
 
   // Trips
   sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
@@ -169,12 +172,14 @@ Future<void> initLocator() async {
   // ------------------------
   // BLOCS & CUBITS
   // ------------------------
+
   sl.registerFactory(() => ProfileCubit(
-    getUserEmail: sl<GetUserEmail>(),
-    changePassword: sl<ChangePassword>(),
-    deleteUser: sl<DeleteUser>(),
-    hive: sl<HiveService>(),
-  ));
+        getUserEmail: sl<GetUserEmail>(),
+        changePassword: sl<ChangePassword>(),
+        deleteUser: sl<DeleteUser>(),
+        hive: sl<HiveService>(),
+        localRepo: sl<AuthLocalRepository>()
+      ));
 
   sl.registerFactory(() => SplashCubit(sl()));
 
@@ -196,9 +201,7 @@ Future<void> initLocator() async {
         deleteSavedTrip: sl(),
       ));
 
-  sl.registerFactory(() => DeepSeekBloc(
-        sl<GenerateTrip>(),
-      ));
+  sl.registerFactory(() => DeepSeekBloc(sl<GenerateTrip>()));
 
   sl.registerFactory(() => DashboardBloc());
 }

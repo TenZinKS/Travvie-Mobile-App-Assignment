@@ -52,6 +52,7 @@ dependencies:
   flutter_test:
     sdk: flutter
   bloc_test: ^10.0.0
+  fluttertoast: ^8.2.12
 
 dev_dependencies:
 

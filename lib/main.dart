@@ -15,9 +15,6 @@ void main() async {
   // Init HiveService (register adapters + open boxes)
   await sl<HiveService>().init();
 
-  // Optional dummy user
-  await sl<HiveService>().seedDummyUser();
-
   runApp(
     MultiBlocProvider(
       providers: [

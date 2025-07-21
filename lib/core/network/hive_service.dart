@@ -114,25 +114,6 @@ class HiveService {
     await clearGlobalData();
   }
 
-  /// Add dummy user for demo login
-  Future<void> seedDummyUser() async {
-    const email = 'demo@travvie.com';
-    const password = '123456';
-
-    if (!_usersBox.containsKey(email)) {
-      final demoUser = UserModel(
-        id: '',
-        email: email,
-        password: password,
-        profilePic: '',
-        isAdmin: false,
-      );
-      await _usersBox.put(email, demoUser);
-      print('[Hive] Dummy user created.');
-    } else {
-      print('[Hive] Dummy user already exists.');
-    }
-  }
 
   /// Read current user
   String? getCurrentUserEmail() {

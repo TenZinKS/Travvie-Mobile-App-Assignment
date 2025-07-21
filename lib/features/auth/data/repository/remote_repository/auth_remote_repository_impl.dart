@@ -91,4 +91,31 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
       ));
     }
   }
+
+  @override
+  @override
+Future<Either<Failure, void>> changePassword({
+  required String id,
+  required String currentPassword,
+  required String newPassword,
+}) async {
+  final isConnected = await networkInfo.isConnected;
+
+  if (!isConnected) {
+    return Left(RemoteDatabaseFailure(message: "No internet connection."));
+  }
+
+  try {
+    await remoteDataSource.changePassword(
+      id: id,
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+    return const Right(null);
+  } catch (e) {
+    return Left(RemoteDatabaseFailure(message: e.toString()));
+  }
+}
+
+
 }
