@@ -29,6 +29,7 @@ import 'package:travvie/app/use_case/register_user.dart';
 
 // AUTH - Blocs
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
+import 'package:travvie/features/profile/domain/use_case/delete_user.dart';
 
 // PROFILE
 import 'package:travvie/features/profile/domain/use_case/get_user_email.dart';
@@ -169,9 +170,11 @@ Future<void> initLocator() async {
   // BLOCS & CUBITS
   // ------------------------
   sl.registerFactory(() => ProfileCubit(
-        sl<GetUserEmail>(),
-        sl<ChangePassword>(),
-      ));
+    getUserEmail: sl<GetUserEmail>(),
+    changePassword: sl<ChangePassword>(),
+    deleteUser: sl<DeleteUser>(),
+    hive: sl<HiveService>(),
+  ));
 
   sl.registerFactory(() => SplashCubit(sl()));
 

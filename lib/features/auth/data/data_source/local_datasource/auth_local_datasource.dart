@@ -9,6 +9,9 @@ abstract class AuthLocalDataSource {
   Future<void> logoutUser();
   String? getCurrentUserEmail();
 
+  /// ✅ Get current logged-in UserModel
+  UserModel? getCurrentUserModel();
+
   /// Changes a user's password.
   /// [isForgotPassword] = true → skip checking current password.
   Future<void> changePassword({
@@ -81,6 +84,20 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     try {
       final sessionBox = Hive.box<String>(HiveTableConstants.sessionBox);
       return sessionBox.get(HiveTableConstants.currentUserEmail);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// ✅ New method to fetch the full UserModel of current user
+  @override
+  UserModel? getCurrentUserModel() {
+    try {
+      final email = getCurrentUserEmail();
+      if (email == null) return null;
+
+      final userBox = Hive.box<UserModel>(HiveTableConstants.usersBox);
+      return userBox.get(email);
     } catch (_) {
       return null;
     }

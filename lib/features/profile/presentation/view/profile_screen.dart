@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/core/network/hive_service.dart';
+import 'package:travvie/features/auth/domain/entity/user_entity.dart';
 import 'package:travvie/features/auth/domain/repository/auth_local_repository.dart';
+import 'package:travvie/features/auth/domain/repository/auth_remote_repository.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
 import 'package:travvie/features/saved/presentation/view/change_password_screen.dart';
 
@@ -52,6 +54,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> _deleteAccount() async {
+    final localRepo = sl<AuthLocalRepository>();
+    final remoteRepo = sl<AuthRemoteRepository>();
+    final hive = sl<HiveService>();
+
+    final email = localRepo.getCurrentUserEmail();
+    final UserEntity? userModel = localRepo.getCurrentUser();
+
+    if (email == null || userModel == null) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Account"),
+        content: const Text("Are you sure you want to delete your account? This cannot be undone."),
+        actions: [
+          TextButton(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+          ElevatedButton(
+            child: const Text("Delete"),
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await hive.deleteUser(email);
+        await remoteRepo.deleteUserById(userModel.id);
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginView()),
+          (route) => false,
+        );
+      } catch (e) {
+        print("Error deleting account: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to delete account: $e")),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,32 +113,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Column(
         children: [
           const SizedBox(height: 30),
-
           GestureDetector(
             onTap: _pickImage,
             child: CircleAvatar(
               radius: 45,
               backgroundColor: const Color(0xFF09A8C8),
-              backgroundImage: _imagePath != null ? FileImage(File(_imagePath!)) : null,
+              backgroundImage:
+                  _imagePath != null ? FileImage(File(_imagePath!)) : null,
               child: _imagePath == null
                   ? const Icon(Icons.person, size: 50, color: Colors.white)
                   : null,
             ),
           ),
-
           const SizedBox(height: 12),
           Text(
             userEmail ?? 'Unknown User',
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 30),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               children: [
                 _profileButton(
-                  context,
                   icon: Icons.edit,
                   label: "Edit Profile",
                   onTap: () {
@@ -97,7 +143,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 _profileButton(
-                  context,
                   icon: Icons.lock,
                   label: "Change Password",
                   onTap: () {
@@ -107,7 +152,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       );
                       return;
                     }
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -117,18 +161,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                 ),
                 _profileButton(
-                  context,
-                  icon: Icons.history,
-                  label: "Check Travel History",
-                  onTap: () {
-                    // TODO: Navigate to travel history screen
-                  },
+                  icon: Icons.delete,
+                  label: "Delete Account",
+                  onTap: _deleteAccount,
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     await sl<AuthLocalRepository>().logout();
-
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(builder: (_) => const LoginView()),
@@ -149,8 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _profileButton(
-    BuildContext context, {
+  Widget _profileButton({
     required IconData icon,
     required String label,
     required VoidCallback onTap,

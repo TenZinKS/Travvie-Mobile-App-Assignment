@@ -35,6 +35,13 @@ class AuthLocalRepositoryImpl implements AuthLocalRepository {
     return localDataSource.getCurrentUserEmail();
   }
 
+  /// ✅ Added: Get current logged-in user entity
+  @override
+  UserEntity? getCurrentUser() {
+    final userModel = localDataSource.getCurrentUserModel();
+    return userModel?.toEntity();
+  }
+
   @override
   Future<Either<Failure, void>> changePassword({
     required String email,

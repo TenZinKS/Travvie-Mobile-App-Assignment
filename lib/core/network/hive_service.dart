@@ -33,7 +33,7 @@ class HiveService {
     print('[Hive] Core initialization complete.');
   }
 
-  /// Call this after login
+  /// Open trip/saved trip boxes for the logged-in user
   Future<void> openUserBoxes() async {
     final email = getCurrentUserEmail();
     if (email == null) {
@@ -49,13 +49,13 @@ class HiveService {
     print('[Hive] User boxes opened for $email');
   }
 
-  /// Save an object into a box
+  /// Save any object into a box
   Future<void> save<T>(String boxName, String key, T value) async {
     final box = _getBox<T>(boxName);
     await box.put(key, value);
   }
 
-  /// Read a single object from a box
+  /// Read an object
   Future<T?> read<T>(String boxName, String key) async {
     final box = _getBox<T>(boxName);
     return box.get(key);
@@ -67,58 +67,54 @@ class HiveService {
     await box.delete(key);
   }
 
-  /// Check if a key exists
+  /// Check if key exists
   Future<bool> containsKey<T>(String boxName, String key) async {
     final box = _getBox<T>(boxName);
     return box.containsKey(key);
   }
 
-  /// Get all values from a box
+  /// Get all values
   Future<List<T>> getAll<T>(String boxName) async {
     final box = _getBox<T>(boxName);
     return box.values.toList().cast<T>();
   }
 
-  /// Internal getter
+  /// Internal box getter
   Box<T> _getBox<T>(String boxName) {
     if (boxName == HiveTableConstants.usersBox && T == UserModel) {
       return _usersBox as Box<T>;
     } else if (boxName == HiveTableConstants.sessionBox && T == String) {
       return _sessionBox as Box<T>;
     } else if (boxName.startsWith(HiveTableConstants.tripsBox) && T == TripModel) {
-      if (_tripsBox == null) {
-        throw HiveError("Trips box not opened yet.");
-      }
+      if (_tripsBox == null) throw HiveError("Trips box not opened yet.");
       return _tripsBox as Box<T>;
     } else if (boxName.startsWith(HiveTableConstants.savedTripsBox) && T == SavedTripModel) {
-      if (_savedTripsBox == null) {
-        throw HiveError("Saved trips box not opened yet.");
-      }
+      if (_savedTripsBox == null) throw HiveError("Saved trips box not opened yet.");
       return _savedTripsBox as Box<T>;
     } else {
       throw HiveError("Unsupported box or type: $boxName");
     }
   }
 
-  /// Clear all user-specific boxes
+  /// Clear user-specific boxes
   Future<void> clearUserData() async {
     await _tripsBox?.clear();
     await _savedTripsBox?.clear();
   }
 
-  /// Clear global data
+  /// Clear global session/user boxes
   Future<void> clearGlobalData() async {
     await _usersBox.clear();
     await _sessionBox.clear();
   }
 
-  /// Clear everything
+  /// Wipe everything
   Future<void> clearAll() async {
     await clearUserData();
     await clearGlobalData();
   }
 
-  /// Seed a dummy user
+  /// Add dummy user for demo login
   Future<void> seedDummyUser() async {
     const email = 'demo@travvie.com';
     const password = '123456';
@@ -138,12 +134,12 @@ class HiveService {
     }
   }
 
-  /// Get current user email
+  /// Read current user
   String? getCurrentUserEmail() {
     return _sessionBox.get(HiveTableConstants.currentUserEmail);
   }
 
-  /// Debug printing trips
+  /// Debug trip logs
   Future<void> debugPrintTrips() async {
     for (var key in _tripsBox?.keys ?? []) {
       final trip = _tripsBox?.get(key);
@@ -151,7 +147,7 @@ class HiveService {
     }
   }
 
-  /// Debug printing saved trips
+  /// Debug saved trip logs
   Future<void> debugPrintSavedTrips() async {
     for (var key in _savedTripsBox?.keys ?? []) {
       final trip = _savedTripsBox?.get(key);
@@ -159,11 +155,7 @@ class HiveService {
     }
   }
 
-  /// -------------------------------------------
-  /// USER PROFILE IMAGE METHODS
-  /// -------------------------------------------
-
-  /// Open user-specific box for profile info
+  /// Open extra user-specific box (for image)
   Future<Box> openUserBox(String email) async {
     final boxName = "${email}_box";
     return Hive.isBoxOpen(boxName)
@@ -171,21 +163,71 @@ class HiveService {
         : await Hive.openBox(boxName);
   }
 
-  /// Save profile image path
+  /// Save user profile image path
   Future<void> saveProfileImagePath(String email, String imagePath) async {
     final box = await openUserBox(email);
     await box.put('profileImagePath', imagePath);
   }
 
-  /// Read profile image path
+  /// Get profile image
   Future<String?> getProfileImagePath(String email) async {
     final box = await openUserBox(email);
     return box.get('profileImagePath');
   }
 
-  /// Delete profile image path
+  /// Delete profile image only
   Future<void> deleteProfileImagePath(String email) async {
     final box = await openUserBox(email);
     await box.delete('profileImagePath');
   }
+
+  // ✅ Delete full user account & boxes
+  Future<void> deleteUser(String email) async {
+  // Delete profile image path box
+  final profileBoxName = "${email}_box";
+  if (Hive.isBoxOpen(profileBoxName)) {
+    await Hive.box(profileBoxName).clear();
+    await Hive.box(profileBoxName).close();
+  } else if (await Hive.boxExists(profileBoxName)) {
+    final box = await Hive.openBox(profileBoxName);
+    await box.clear();
+    await box.close();
+  }
+
+  // Remove user from users box
+  await _usersBox.delete(email);
+
+  // Remove session if matches
+  if (getCurrentUserEmail() == email) {
+    await _sessionBox.delete(HiveTableConstants.currentUserEmail);
+  }
+
+  // Handle trip box
+  final tripsBoxName = "${HiveTableConstants.tripsBox}_$email";
+  if (Hive.isBoxOpen(tripsBoxName)) {
+    final box = Hive.box<TripModel>(tripsBoxName);
+    await box.clear();
+    await box.close();
+  } else if (await Hive.boxExists(tripsBoxName)) {
+    final box = await Hive.openBox<TripModel>(tripsBoxName);
+    await box.clear();
+    await box.close();
+  }
+
+  // Handle saved trip box
+  final savedBoxName = "${HiveTableConstants.savedTripsBox}_$email";
+  if (Hive.isBoxOpen(savedBoxName)) {
+    final box = Hive.box<SavedTripModel>(savedBoxName);
+    await box.clear();
+    await box.close();
+  } else if (await Hive.boxExists(savedBoxName)) {
+    final box = await Hive.openBox<SavedTripModel>(savedBoxName);
+    await box.clear();
+    await box.close();
+  }
+
+  print("[Hive] User '$email' deleted successfully.");
+}
+
+
 }

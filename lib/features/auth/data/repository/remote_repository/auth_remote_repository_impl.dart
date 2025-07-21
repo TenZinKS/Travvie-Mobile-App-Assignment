@@ -26,8 +26,7 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
 
     if (isConnected) {
       try {
-        final remoteModel =
-            await remoteDataSource.loginUser(email, password);
+        final remoteModel = await remoteDataSource.loginUser(email, password);
 
         // Save user locally
         await localDataSource.registerUser(
@@ -49,7 +48,8 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
         );
       } else {
         return Left(LocalDatabaseFailure(
-            message: "No local user found. Please connect to internet."));
+          message: "No local user found. Please connect to internet.",
+        ));
       }
     }
   }
@@ -68,7 +68,27 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
       }
     } else {
       return Left(RemoteDatabaseFailure(
-          message: "No internet connection. Registration failed."));
+        message: "No internet connection. Registration failed.",
+      ));
+    }
+  }
+
+  /// ✅ NEW: Delete user from remote API using ID
+  @override
+  Future<Either<Failure, void>> deleteUserById(String userId) async {
+    final isConnected = await networkInfo.isConnected;
+
+    if (isConnected) {
+      try {
+        await remoteDataSource.deleteUser(userId);
+        return const Right(null);
+      } catch (e) {
+        return Left(RemoteDatabaseFailure(message: e.toString()));
+      }
+    } else {
+      return Left(RemoteDatabaseFailure(
+        message: "No internet connection. Cannot delete user.",
+      ));
     }
   }
 }

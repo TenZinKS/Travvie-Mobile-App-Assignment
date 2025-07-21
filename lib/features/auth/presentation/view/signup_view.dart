@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:travvie/app/service_locator/service_locator.dart';
 import 'package:travvie/features/auth/presentation/view/login_view.dart';
 import 'package:travvie/features/auth/presentation/view_model/auth_bloc.dart';
