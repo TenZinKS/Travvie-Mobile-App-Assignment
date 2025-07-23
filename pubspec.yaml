@@ -54,6 +54,7 @@ dependencies:
   bloc_test: ^10.0.0
   fluttertoast: ^8.2.12
   flutter_markdown_plus: ^1.0.3
+  http: ^1.4.0
 
 dev_dependencies:
 
