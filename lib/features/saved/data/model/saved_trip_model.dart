@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travvie/features/saved/domain/entity/saved_trip_entity.dart';
 
 part 'saved_trip_model.g.dart';
@@ -18,10 +18,10 @@ class SavedTripModel extends HiveObject {
   int numberOfPeople;
 
   @HiveField(4)
-  DateTime startDate;
+  DateTime? startDate; 
 
   @HiveField(5)
-  DateTime endDate;
+  DateTime? endDate;   
 
   @HiveField(6)
   String itinerary;
@@ -31,8 +31,8 @@ class SavedTripModel extends HiveObject {
     required this.from,
     required this.to,
     required this.numberOfPeople,
-    required this.startDate,
-    required this.endDate,
+    this.startDate, // ✅ Optional
+    this.endDate,   // ✅ Optional
     required this.itinerary,
   });
 
@@ -42,8 +42,8 @@ class SavedTripModel extends HiveObject {
       from: from,
       to: to,
       numberOfPeople: numberOfPeople,
-      startDate: startDate,
-      endDate: endDate,
+      startDate: startDate, 
+      endDate: endDate,     
       itinerary: itinerary,
     );
   }
@@ -54,8 +54,8 @@ class SavedTripModel extends HiveObject {
       from: entity.from,
       to: entity.to,
       numberOfPeople: entity.numberOfPeople,
-      startDate: entity.startDate,
-      endDate: entity.endDate,
+      startDate: entity.startDate, 
+      endDate: entity.endDate,     
       itinerary: entity.itinerary,
     );
   }

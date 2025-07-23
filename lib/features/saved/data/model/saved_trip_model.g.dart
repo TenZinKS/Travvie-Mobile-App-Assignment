@@ -21,8 +21,8 @@ class SavedTripModelAdapter extends TypeAdapter<SavedTripModel> {
       from: fields[1] as String,
       to: fields[2] as String,
       numberOfPeople: fields[3] as int,
-      startDate: fields[4] as DateTime,
-      endDate: fields[5] as DateTime,
+      startDate: fields[4] as DateTime?,
+      endDate: fields[5] as DateTime?,
       itinerary: fields[6] as String,
     );
   }

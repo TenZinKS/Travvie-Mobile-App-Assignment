@@ -209,7 +209,7 @@ class TripDetailsScreen extends StatelessWidget {
   void _saveAsWishlist(BuildContext context, TripEntity trip) {
     BlocProvider.of<SavedTripBloc>(context).add(AddSavedTripEvent(SavedTripEntity(
       id: trip.id,
-      from: "${trip.from} → ${trip.to}",
+      from: trip.from,
       to: trip.to,
       numberOfPeople: trip.numberOfPeople,
       startDate: trip.startDate!,

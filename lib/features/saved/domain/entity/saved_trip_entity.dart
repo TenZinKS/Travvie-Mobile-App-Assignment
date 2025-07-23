@@ -5,8 +5,8 @@ class SavedTripEntity extends Equatable {
   final String from;
   final String to;
   final int numberOfPeople;
-  final DateTime startDate;
-  final DateTime endDate;
+  final DateTime? startDate; // made nullable
+  final DateTime? endDate;   // made nullable
   final String itinerary;
 
   const SavedTripEntity({
@@ -14,11 +14,19 @@ class SavedTripEntity extends Equatable {
     required this.from,
     required this.to,
     required this.numberOfPeople,
-    required this.startDate,
-    required this.endDate,
+    this.startDate, // optional
+    this.endDate,   // optional
     required this.itinerary,
   });
 
   @override
-  List<Object?> get props => [id, from, to, numberOfPeople, startDate, endDate, itinerary];
+  List<Object?> get props => [
+        id,
+        from,
+        to,
+        numberOfPeople,
+        startDate,
+        endDate,
+        itinerary,
+      ];
 }
