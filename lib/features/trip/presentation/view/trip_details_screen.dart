@@ -26,16 +26,30 @@ class TripDetailsScreen extends StatelessWidget {
       ],
       child: MultiBlocListener(
         listeners: [
+          // ✅ Updated TripBloc listener with new success states
           BlocListener<TripBloc, TripState>(
             listener: (context, state) {
-              if (state is TripLoaded && Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
+              if (state is TripAddedSuccess ||
+                  state is TripUpdateSuccess ||
+                  state is TripDeletedSuccess) {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+
+                final message = state is TripAddedSuccess
+                    ? "Trip added successfully!"
+                    : state is TripUpdateSuccess
+                        ? "Trip updated successfully!"
+                        : "Trip deleted successfully!";
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Trip updated successfully!")),
+                  SnackBar(content: Text(message)),
                 );
               }
             },
           ),
+
+          // ✅ SavedTripBloc listener remains the same
           BlocListener<SavedTripBloc, SavedTripState>(
             listener: (context, state) {
               if (state is SavedTripLoaded && Navigator.of(context).canPop()) {
@@ -130,18 +144,13 @@ class TripDetailsScreen extends StatelessWidget {
       sections.add(
         ExpansionTile(
           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
-          children: [
-            MarkdownBody(data: content),
-          ],
+          children: [MarkdownBody(data: content)],
         ),
       );
     }
 
     return sections;
   }
-}
-
-
 
   List<Widget> _buildActions(BuildContext context, TripEntity trip) {
     if (trip.status == "COMPLETED" || trip.status == "CANCELLED") return [];
@@ -308,4 +317,4 @@ class TripDetailsScreen extends StatelessWidget {
   bool _canEdit(String status) {
     return status == "PLANNED" || status == "UPCOMING";
   }
-
+}

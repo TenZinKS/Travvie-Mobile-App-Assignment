@@ -1,5 +1,3 @@
-// lib/features/trip/data/model/trip_model.dart
-
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 
@@ -8,7 +6,7 @@ part 'trip_model.g.dart';
 @HiveType(typeId: 1)
 class TripModel extends HiveObject {
   @HiveField(0)
-  final String id;
+  final String id; // tripId (MongoDB _id)
 
   @HiveField(1)
   final String from;
@@ -31,6 +29,9 @@ class TripModel extends HiveObject {
   @HiveField(7)
   final String status;
 
+  // ✅ Not stored in Hive, just used for backend JSON
+  final String? userId;
+
   TripModel({
     required this.id,
     required this.from,
@@ -40,13 +41,14 @@ class TripModel extends HiveObject {
     this.endDate,
     required this.itinerary,
     required this.status,
+    this.userId,
   });
 
   factory TripModel.fromJson(Map<String, dynamic> json) {
     return TripModel(
-      id: json["_id"] as String,
+      id: json["_id"] ?? "",
       from: json["from"] ?? "",
-      to: json["to"] ?? "",
+      to: json["destination"] ?? "", // ✅ Must match backend key
       numberOfPeople: json["numberOfPeople"] ?? 1,
       startDate: json["startDate"] != null
           ? DateTime.tryParse(json["startDate"])
@@ -62,12 +64,13 @@ class TripModel extends HiveObject {
   Map<String, dynamic> toJson() {
     return {
       "from": from,
-      "to": to,
+      "destination": to, // ✅ Must match backend key
       "numberOfPeople": numberOfPeople,
       "startDate": startDate?.toIso8601String(),
       "endDate": endDate?.toIso8601String(),
       "itinerary": itinerary,
       "status": status,
+      if (userId != null) "userId": userId,
     };
   }
 
@@ -84,7 +87,7 @@ class TripModel extends HiveObject {
     );
   }
 
-  factory TripModel.fromEntity(TripEntity entity) {
+  factory TripModel.fromEntity(TripEntity entity, {String? userId}) {
     return TripModel(
       id: entity.id,
       from: entity.from,
@@ -94,6 +97,7 @@ class TripModel extends HiveObject {
       endDate: entity.endDate,
       itinerary: entity.itinerary,
       status: entity.status,
+      userId: userId,
     );
   }
 }

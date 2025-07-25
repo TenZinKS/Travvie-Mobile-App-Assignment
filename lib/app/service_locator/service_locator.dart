@@ -40,8 +40,11 @@ import 'package:travvie/features/splash/presentation/view_model/splash_cubit.dar
 
 // TRIPS
 import 'package:travvie/features/trip/data/data_source/local_datasource/local_trip_datasource.dart';
+import 'package:travvie/features/trip/data/data_source/remote_datasource/trip_remote_data_source.dart';
 import 'package:travvie/features/trip/data/repository/local_repository/trip_repository_impl.dart';
+import 'package:travvie/features/trip/data/repository/remote_repository/trip_remote_repository_impl.dart';
 import 'package:travvie/features/trip/domain/repository/trip_repository.dart';
+import 'package:travvie/features/trip/domain/repository/trip_remote_repository.dart';
 import 'package:travvie/features/trip/domain/use_case/add_trip.dart';
 import 'package:travvie/features/trip/domain/use_case/get_all_trips.dart';
 import 'package:travvie/features/trip/domain/use_case/delete_trip.dart';
@@ -85,7 +88,7 @@ Future<void> initLocator() async {
   // DATA SOURCES
   // ------------------------
 
-  // Local Data Sources
+  // Local
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(sl<HiveService>()),
   );
@@ -98,9 +101,13 @@ Future<void> initLocator() async {
     () => LocalSavedTripDataSourceImpl(sl<HiveService>()),
   );
 
-  // Remote Data Sources
+  // Remote
   sl.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSourceImpl(sl<ApiService>()),
+  );
+
+  sl.registerLazySingleton<TripRemoteDataSource>(
+    () => TripRemoteDataSourceImpl(sl<ApiService>()),
   );
 
   sl.registerLazySingleton<RemoteDeepSeekDataSource>(
@@ -127,6 +134,10 @@ Future<void> initLocator() async {
     () => TripRepositoryImpl(sl<LocalTripDataSource>()),
   );
 
+  sl.registerLazySingleton<TripRemoteRepository>(
+    () => TripRemoteRepositoryImpl(sl<TripRemoteDataSource>()),
+  );
+
   sl.registerLazySingleton<SavedTripRepository>(
     () => SavedTripRepositoryImpl(sl<LocalSavedTripDataSource>()),
   );
@@ -141,67 +152,79 @@ Future<void> initLocator() async {
   // USE CASES
   // ------------------------
 
-  // Auth - Remote
-  sl.registerLazySingleton(() => RemoteLoginUser(sl<AuthRemoteRepository>()));
-  sl.registerLazySingleton(() => RemoteRegisterUser(sl<AuthRemoteRepository>()));
-  sl.registerLazySingleton(() => ChangePassword(sl<AuthRemoteRepository>()));
+  // Auth
+  sl.registerLazySingleton(() => RemoteLoginUser(sl()));
+  sl.registerLazySingleton(() => RemoteRegisterUser(sl()));
+  sl.registerLazySingleton(() => ChangePassword(sl()));
+  sl.registerLazySingleton(() => ForgotPassword(sl()));
+  sl.registerLazySingleton(() => LoginUser(sl()));
+  sl.registerLazySingleton(() => RegisterUser(sl()));
+  sl.registerLazySingleton(() => GetUserEmail(sl()));
+  sl.registerLazySingleton(() => DeleteUser(sl()));
 
-  // Auth - Local
-  sl.registerLazySingleton(() => LoginUser(sl<AuthLocalRepository>()));
-  sl.registerLazySingleton(() => RegisterUser(sl<AuthLocalRepository>()));
-  sl.registerLazySingleton(() => GetUserEmail(sl<AuthLocalRepository>()));
-  sl.registerLazySingleton(() => ForgotPassword(sl<AuthLocalRepository>()));
-
-  // ✅ Profile - Delete User
-  sl.registerLazySingleton(() => DeleteUser(sl<AuthRemoteRepository>()));
-
-  // Trips
-  sl.registerLazySingleton(() => AddTrip(sl<TripRepository>()));
-  sl.registerLazySingleton(() => GetAllTrips(sl<TripRepository>()));
-  sl.registerLazySingleton(() => DeleteTrip(sl<TripRepository>()));
-  sl.registerLazySingleton(() => UpdateTrip(sl<TripRepository>()));
+  // Trips (local + remote)
+  sl.registerLazySingleton(
+    () => AddTrip(
+      sl<TripRepository>(),
+      sl<TripRemoteRepository>(),
+      sl<NetworkInfo>(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => DeleteTrip(sl<TripRepository>(), sl<TripRemoteRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => UpdateTrip(sl<TripRepository>(), sl<TripRemoteRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetAllTrips(sl<TripRepository>(), sl<TripRemoteRepository>()),
+  );
 
   // Saved Trips
-  sl.registerLazySingleton(() => AddSavedTrip(sl<SavedTripRepository>()));
-  sl.registerLazySingleton(() => GetAllSavedTrips(sl<SavedTripRepository>()));
-  sl.registerLazySingleton(() => DeleteSavedTrip(sl<SavedTripRepository>()));
+  sl.registerLazySingleton(() => AddSavedTrip(sl()));
+  sl.registerLazySingleton(() => GetAllSavedTrips(sl()));
+  sl.registerLazySingleton(() => DeleteSavedTrip(sl()));
 
   // DeepSeek
-  sl.registerLazySingleton(() => GenerateTrip(sl<DeepSeekRepository>()));
+  sl.registerLazySingleton(() => GenerateTrip(sl()));
 
   // ------------------------
-  // BLOCS & CUBITS
+  // BLOCS / CUBITS
   // ------------------------
 
-  sl.registerFactory(() => ProfileCubit(
-        getUserEmail: sl<GetUserEmail>(),
-        changePassword: sl<ChangePassword>(),
-        deleteUser: sl<DeleteUser>(),
-        hive: sl<HiveService>(),
-        localRepo: sl<AuthLocalRepository>()
-      ));
+  sl.registerFactory(
+    () => ProfileCubit(
+      getUserEmail: sl(),
+      changePassword: sl(),
+      deleteUser: sl(),
+      hive: sl(),
+      localRepo: sl(),
+    ),
+  );
 
   sl.registerFactory(() => SplashCubit(sl()));
 
-  sl.registerFactory(() => AuthBloc(
-        sl<RemoteLoginUser>(),
-        sl<RemoteRegisterUser>(),
-      ));
+  sl.registerFactory(
+    () => AuthBloc(sl<RemoteLoginUser>(), sl<RemoteRegisterUser>()),
+  );
 
-  sl.registerFactory(() => TripBloc(
-        addTrip: sl(),
-        getAllTrips: sl(),
-        deleteTrip: sl(),
-        updateTrip: sl(),
-      ));
+  sl.registerFactory(
+    () => TripBloc(
+      addTrip: sl(),
+      getAllTrips: sl(),
+      deleteTrip: sl(),
+      updateTrip: sl(),
+    ),
+  );
 
-  sl.registerFactory(() => SavedTripBloc(
-        addSavedTrip: sl(),
-        getAllSavedTrips: sl(),
-        deleteSavedTrip: sl(),
-      ));
+  sl.registerFactory(
+    () => SavedTripBloc(
+      addSavedTrip: sl(),
+      getAllSavedTrips: sl(),
+      deleteSavedTrip: sl(),
+    ),
+  );
 
   sl.registerFactory(() => DeepSeekBloc(sl<GenerateTrip>()));
-
   sl.registerFactory(() => DashboardBloc());
 }

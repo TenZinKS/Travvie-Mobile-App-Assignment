@@ -1,5 +1,3 @@
-// lib/features/trip/domain/repository/trip_repository.dart
-
 import 'package:dartz/dartz.dart';
 import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';

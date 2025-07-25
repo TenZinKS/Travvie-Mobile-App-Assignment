@@ -1,5 +1,3 @@
-// lib/features/trip/presentation/view_model/trip_state.dart
-
 import 'package:equatable/equatable.dart';
 import 'package:travvie/features/trip/domain/entity/trip_entity.dart';
 
@@ -22,6 +20,12 @@ class TripLoaded extends TripState {
   @override
   List<Object?> get props => [trips];
 }
+
+class TripAddedSuccess extends TripState {}
+
+class TripUpdateSuccess extends TripState {}
+
+class TripDeletedSuccess extends TripState {}
 
 class TripError extends TripState {
   final String message;

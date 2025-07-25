@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:travvie/core/error/failure.dart';
 import 'package:travvie/core/network/network_info.dart';
 import 'package:travvie/features/auth/data/data_source/local_datasource/auth_local_datasource.dart';
@@ -21,23 +22,44 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
 
   @override
   Future<Either<Failure, LoginResponseEntity>> login(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     final isConnected = await networkInfo.isConnected;
 
     if (isConnected) {
       try {
+        // 🔐 1. Login remotely
         final remoteModel = await remoteDataSource.loginUser(email, password);
 
-        // Save user locally
+        // 💾 2. Save user locally for offline login
         await localDataSource.registerUser(
           UserModel.fromEntity(remoteModel.user),
         );
 
+        // 💾 3. Save token and user info to Hive
+        final box = await Hive.openBox('auth');
+
+        if (remoteModel.token.isNotEmpty) {
+          await box.put('token', remoteModel.token);
+          print('[LOGIN] Token saved: ${remoteModel.token}');
+        } else {
+          print('[LOGIN] Warning: token is empty!');
+        }
+
+        await box.put('userEmail', remoteModel.user.email);
+        await box.put('userId', remoteModel.user.id);
+        await box.put('isAdmin', remoteModel.user.isAdmin);
+        await box.put('profilePic', remoteModel.user.profilePic);
+        print('[LOGIN] User email saved: ${remoteModel.user.email}');
+
         return Right(remoteModel.toEntity());
       } catch (e) {
+        print('[LOGIN] Error: $e');
         return Left(RemoteDatabaseFailure(message: e.toString()));
       }
     } else {
+      // 📴 OFFLINE login
       final localUser = await localDataSource.loginUser(email, password);
       if (localUser != null) {
         return Right(
@@ -47,9 +69,11 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
           ),
         );
       } else {
-        return Left(LocalDatabaseFailure(
-          message: "No local user found. Please connect to internet.",
-        ));
+        return Left(
+          LocalDatabaseFailure(
+            message: "No local user found. Please connect to internet.",
+          ),
+        );
       }
     }
   }
@@ -67,13 +91,14 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
         return Left(RemoteDatabaseFailure(message: e.toString()));
       }
     } else {
-      return Left(RemoteDatabaseFailure(
-        message: "No internet connection. Registration failed.",
-      ));
+      return Left(
+        RemoteDatabaseFailure(
+          message: "No internet connection. Registration failed.",
+        ),
+      );
     }
   }
 
-  /// ✅ NEW: Delete user from remote API using ID
   @override
   Future<Either<Failure, void>> deleteUserById(String userId) async {
     final isConnected = await networkInfo.isConnected;
@@ -86,36 +111,35 @@ class AuthRemoteRepositoryImpl implements AuthRemoteRepository {
         return Left(RemoteDatabaseFailure(message: e.toString()));
       }
     } else {
-      return Left(RemoteDatabaseFailure(
-        message: "No internet connection. Cannot delete user.",
-      ));
+      return Left(
+        RemoteDatabaseFailure(
+          message: "No internet connection. Cannot delete user.",
+        ),
+      );
     }
   }
 
   @override
-  @override
-Future<Either<Failure, void>> changePassword({
-  required String id,
-  required String currentPassword,
-  required String newPassword,
-}) async {
-  final isConnected = await networkInfo.isConnected;
+  Future<Either<Failure, void>> changePassword({
+    required String id,
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final isConnected = await networkInfo.isConnected;
 
-  if (!isConnected) {
-    return Left(RemoteDatabaseFailure(message: "No internet connection."));
+    if (!isConnected) {
+      return Left(RemoteDatabaseFailure(message: "No internet connection."));
+    }
+
+    try {
+      await remoteDataSource.changePassword(
+        id: id,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(RemoteDatabaseFailure(message: e.toString()));
+    }
   }
-
-  try {
-    await remoteDataSource.changePassword(
-      id: id,
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    );
-    return const Right(null);
-  } catch (e) {
-    return Left(RemoteDatabaseFailure(message: e.toString()));
-  }
-}
-
-
 }

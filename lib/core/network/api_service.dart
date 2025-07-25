@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:travvie/app/constant/api_endpoints.dart';
 import 'package:travvie/core/network/dio_error_interceptor.dart';
+import 'package:travvie/core/network/token_provider.dart'; // ⬅️ Add this import
 
 class ApiService {
   final Dio _dio;
@@ -19,6 +20,18 @@ class ApiService {
           requestHeader: true,
           requestBody: true,
           responseHeader: true,
+        ),
+      )
+      ..interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) async {
+            final token = await TokenProvider.getToken();
+            if (token != null && token.isNotEmpty) {
+              options.headers['Authorization'] = 'Bearer $token';
+              print("[DEBUG] Attached token: $token"); // ✅ Optional debug
+            }
+            return handler.next(options);
+          },
         ),
       )
       ..options.headers = {

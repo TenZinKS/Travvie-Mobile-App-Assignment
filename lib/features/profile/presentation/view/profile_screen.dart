@@ -141,13 +141,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   children: [
                     _profileButton(
-                      icon: Icons.edit,
-                      label: "Edit Profile",
-                      onTap: () {
-                        // TODO: Navigate to edit profile screen
-                      },
-                    ),
-                    _profileButton(
                       icon: Icons.lock,
                       label: "Change Password",
                       onTap: () {

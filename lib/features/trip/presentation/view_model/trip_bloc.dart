@@ -1,5 +1,3 @@
-// lib/features/trip/presentation/view_model/trip_bloc.dart
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:travvie/features/trip/domain/use_case/get_all_trips.dart';
 import 'package:travvie/features/trip/domain/use_case/add_trip.dart';
@@ -39,10 +37,13 @@ class TripBloc extends Bloc<TripEvent, TripState> {
   Future<void> _onAddTrip(
       AddTripEvent event, Emitter<TripState> emit) async {
     emit(TripLoading());
-    final result = await addTrip(event.trip);
-    result.fold(
-      (failure) => emit(TripError(failure.message)),
-      (_) => add(LoadTripsEvent()),
+    final localResult = await addTrip(event.trip);
+    await localResult.fold(
+      (failure) async => emit(TripError(failure.message)),
+      (_) {
+        emit(TripAddedSuccess());     // ✅ Emit add success
+        add(LoadTripsEvent());
+      },
     );
   }
 
@@ -52,7 +53,10 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     final result = await deleteTrip(event.tripId);
     result.fold(
       (failure) => emit(TripError(failure.message)),
-      (_) => add(LoadTripsEvent()),
+      (_) {
+        emit(TripDeletedSuccess());   // ✅ Emit delete success
+        add(LoadTripsEvent());
+      },
     );
   }
 
@@ -62,7 +66,10 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     final result = await updateTrip(event.trip);
     result.fold(
       (failure) => emit(TripError(failure.message)),
-      (_) => add(LoadTripsEvent()),
+      (_) {
+        emit(TripUpdateSuccess());    // ✅ Emit update success
+        add(LoadTripsEvent());
+      },
     );
   }
 }
