@@ -11,6 +11,7 @@ import 'package:travvie/features/auth/presentation/view/login_view.dart';
 import 'package:travvie/features/profile/presentation/view/change_password_screen.dart';
 import 'package:travvie/features/profile/presentation/view_model/profile_cubit.dart';
 
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -182,6 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: const Text("Logout", style: TextStyle(color: Colors.white)),
                     ),
+                    
                   ],
                 ),
               ),

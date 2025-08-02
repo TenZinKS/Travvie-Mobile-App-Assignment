@@ -227,4 +227,5 @@ Future<void> initLocator() async {
 
   sl.registerFactory(() => DeepSeekBloc(sl<GenerateTrip>()));
   sl.registerFactory(() => DashboardBloc());
+
 }

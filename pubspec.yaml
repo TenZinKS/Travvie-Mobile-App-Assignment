@@ -55,7 +55,7 @@ dependencies:
   fluttertoast: ^8.2.12
   flutter_markdown_plus: ^1.0.3
   http: ^1.4.0
-  sensors_plus: ^6.1.1
+  test_cov_console: ^0.2.2
 
 dev_dependencies:
 
